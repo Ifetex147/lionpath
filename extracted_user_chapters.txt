@@ -1,0 +1,502 @@
+CHAPTER ONE
+INTRODUCTION
+1.1Background to the Study
+The Faculty of Physical Sciences at the University of Nigeria, Nsukka, has seven core departments: Computer Science, Mathematics, Physics and Astronomy, Pure and Industrial Chemistry, Statistics, Science Laboratory Technology and Geology. Every year, new students arrive in this faculty zone and immediately face the same problem.They do not know where their departmental building is. They do not know which lecture theatre to go to. They do not know how to register for courses or how to pay their fees. Additionally, most of them find it difficult to know what is required for their clearance or how to go about the clearance process entirely. And they have no reliable way to find out.
+Currently, these students rely on a mix of printed orientation handbooks, physical notice boards, word-of-mouth from senior students, and generic mapping apps. None of these work well. The handbooks are general and do not cover the Physical Sciences zone in detail. Notice boards are static and often outdated. Word-of-mouth is unreliable; the senior student you ask might give you wrong directions or forget key steps. While most locations at the University of Nigeria are on Google Maps, the app fails to recognize vital campus shortcuts. Instead, it provides longer, stressful routes, and compounding the issue, many freshers do not even know how to properly use the app to navigate the campus in the first place.
+This creates real problems. Freshers miss registration deadlines because they cannot find the right office. They attend classes at the wrong venue because they misread a notice board timetable. They spend their first weeks wandering the campus instead of settling into academic work. Visitors and parents attending orientation ceremonies face the same confusion. They have no available source of information that answers questions in plain language.
+Researchers have looked at parts of this problem. Schwering et al. (2017) showed that wayfinding instructions incorporating global landmarks and orientation cues help people navigate unfamiliar spaces better than metric turn-by-turn directions alone. Wenig et al. (2017) found that adding visible landmarks to navigation guidance increases user confidence. Yan and Wong (2021) built a campus navigation tool using Dijkstra's algorithm and proved that locally mapped routes outperform generic maps for university environments. Nguyen et al. (2021) demonstrated that chatbots can answer student questions about admission, curriculum, and fees, reducing administrative workload. Scalvini et al. (2024) showed that spoken audio output works well for outdoor navigation. Gbadamosi, Ilori et al. (2025) built a GIS campus navigator for a Nigerian university and achieved high user satisfaction.
+But none of these systems do everything. The navigation tools do not chat. The chatbots do not navigate. The audio systems do not answer timetable questions. No existing system combines natural language conversation with campus navigation, orientation guidance, event information, and timetable lookup in one place.
+LionPath fills this gap. It is a web-based chatbot built specifically for the Faculty of Physical Sciences, UNN. A fresher or visitor opens it in any browser, types or speaks a question, and gets an answer. The system understands natural language, figures out what the user needs, and routes the query to the right module. If they need directions, it gives landmark-based turn-by-turn instructions with photos and voice output. If they need registration steps, it pulls structured answers from a knowledge base. If they want to know about events or timetables, it queries the relevant database tables. No login required. No app to download.
+1.2Statement of the Problem
+Every fresher and visitor to the Faculty of Physical Sciences, UNN, should be able to ask any question about campus life and get an accurate, immediate answer through a single available system. No prior knowledge of the campus should be required.
+Right now, no such system exists. A fresher who needs directions to a hostel, help with course registration, information about an upcoming event, and their class timetable has to check through separate sources like, a senior student or signpost for directions, a printed handbook for registration steps, a notice board for events, and a departmental timetable posted on a wall. None of these sources talk to each other. None accept questions in natural language form. Mapping apps find it difficult recognising the informal names used around the faculty. The result is confusion, missed deadlines, wrong venues, and a stressful first few weeks for new students.
+This study builds LionPath, an intelligent web-based campus orientation assistant with a conversational natural language interface for the Faculty of Physical Sciences, UNN. The system uses an AI pipeline of intent classification, entity extraction, fuzzy name resolution, and dialogue management to understand and respond to natural language queries across four domains: navigation, orientation, events, and timetables. It is deployed as a public web application on PythonAnywhere and tested with UNN Physical Sciences freshers and visitors.
+1.3Aim and Objectives of the Study
+The aim of this study is to design and implement a web-based, conversational AI assistant that streamlines campus onboarding for freshers and visitors within the Faculty of Physical Sciences, UNN.
+The following specific objectives of this study are to:
+Design and implement a conversational AI pipeline comprising an intent classification engine, a custom named entity recognition module, a fuzzy name resolver, and a dialogue manager, capable of understanding and routing natural language campus life queries to the appropriate response module.
+Develop a Smart Campus Navigation module that delivers landmark-based turn-by-turn directions to any location within the Faculty of Physical Sciences zone using informal campus place names, landmark photographs at decision points, spoken audio output, and Dijkstra's Algorithm for optimal route computation.
+Build a Freshers Orientation module that provides structured, step-by-step answers to natural language questions about academic registration, fee payment, ID card collection, hostel allocation, and other campus administrative processes from a curated institutional knowledge base.
+Implement a Campus Events and Notices module that enables freshers and visitors to query upcoming events, notices, and announcements relevant to the Faculty of Physical Sciences through natural language and receive real-time information including event venue, date, time, and a navigation option to the venue.
+Create a Department Timetable module that provides publicly accessible timetable information for the seven core Physical Sciences departments (Computer Science, Mathematics, Physics, Chemistry, Statistics, Science Laboratory Technology and Geology) enabling users to query class venues, times, and days through the conversational interface.
+Design a secure Administrator Dashboard that allows designated administrators to manage the campus landmark database, orientation knowledge base content, event notices, and department timetable data through a protected web interface.
+Evaluate the system's conversational accuracy, navigational effectiveness, and overall usability through structured testing with UNN Physical Sciences freshers and visitors across all functional modules.
+1.4Significance of the Study
+Freshers at the Faculty of Physical Sciences are the main beneficiaries. Each year, hundreds of new students arrive with urgent needs for directions, registration help, event information, and timetable data. Right now they get this information from scattered, and sometimes unreliable sources. LionPath gives them one place to ask any question in plain language. This reduces the disorientation and missed deadlines that currently mark the first weeks of university life. As Lambe et al. (2026) showed, campus-specific systems with locally curated knowledge consistently outperform generic tools for first-year students.
+Visitors and parents also benefit. During orientation ceremonies or open days, they need directions to faculty buildings and event venues. They have no student ID, no login credentials, and no familiarity with the campus. LionPath requires none of these. Anyone with a phone and a browser can use it. As Schwering et al.(2017) demonstrated, landmark-based directions produce better spatial comprehension than distance-based ones, which makes LionPath particularly useful for people who have never been on the UNN campus before.
+University administration benefits from the structured knowledge bases this study produces. The campus landmark database, orientation knowledge base, and events database create a formal digital record of institutional knowledge that currently exists only in informal, non-recoverable forms. These assets can be maintained and extended for future digital initiatives.
+The academic community benefits from a demonstration that a conversational AI campus assistant can be built using only open-source tools. No proprietary AI APIs. No cloud subscription costs. The intent classification pipeline, fuzzy name resolution for informal place names, and multi-module conversational architecture are contributions that other Nigerian universities can adapt.
+1.5Scope of the Study
+This study covers the design and implementation of an intelligent web-based campus orientation assistant for the Faculty of Physical Sciences, University of Nigeria, Nsukka. In terms of content scope, the study encompasses these functional modules of the LionPath system: the conversational AI pipeline including intent classification, entity extraction, fuzzy name resolution, and dialogue management; the Smart Campus Navigation module covering the Faculty of Physical Sciences zone including the six departmental buildings, nearby lecture theatres, the faculty library, adjacent hostels, and key junctions, with landmark-based routing using Dijkstra's Algorithm; the Freshers Orientation module covering the principal academic and administrative processes that new students must complete; the Campus Events module covering publicly posted events and notices relevant to the Physical Sciences faculty; and the Department Timetable module covering publicly accessible timetable data for the core Physical Sciences departments across all the levels of study.
+In terms of delimitation, this study does not include a student login portal or personalized academic profile management, as the system is designed as a public-access conversational assistant that requires no account creation. It does not implement coordinate-based GPS routing; navigation is delivered through descriptive landmark-based instructions anchored to the Physical Sciences campus path network and. The orientation knowledge base covers general campus processes applicable to Physical Sciences freshers and visitors and does not extend to faculty-specific or department-specific academic regulations beyond what is commonly applicable. The system does not cover the entire UNN main campus outside the Physical Sciences zone; it is a proof-of-concept for one faculty, architecturally extensible to others. Extension of the system to include personalized student features, GPS-based positioning, faculty-specific knowledge bases, and coverage of other UNN faculties is identified as a direction for future work.
+1.6Limitation of the Study
+While LionPath handles conversational onboarding and campus navigation, the system operates within defined technical boundaries. Defining these boundaries clarifies the operational scope of the application.
+First, the system relies on static pre-mapped database records rather than dynamic real-time tracking. Furthermore, because paths connections are calculated using fixed location data, temporary physical pathway closures are not reflected in real time until updated by the administrative interface. Similarly, information regarding lecture timetables, faculty events, and orientation procedures is pulled directly from the administrative database; any sudden or unannounced schedule changes made on campus will only reflect in the chatbot after an administrator manually updates the records.
+Second, the system is designed as a web-hosted, domain-specific assistant. Because all natural language processing and database are executed on the cloud backend, the application requires an active internet connection and cannot function as an offline application. Additionally, the conversational pipeline is trained specifically on campus life, administraive workflows, as well as the navigation that are related to the Faculty of Physical Sciences. Queries that fall completely outside the scope of the freshers’ orientation or generic questions unrelated to campus operations will not match any supported intent, prompting the system to ask the user for clarification.
+1.7Definition of Technical Terms
+Conversational AI: An artificial intelligence system designed to understand and respond to natural language input from users in a manner that simulates human conversation, maintaining context across multiple exchanges within a session.
+Intent Classification: A natural language processing task that determines the purpose or goal behind a user's input, used in LionPath to route each query to the appropriate functional module: navigation, orientation, events, or timetable.
+Named Entity Recognition (NER): A natural language processing task that identifies and classifies specific meaningful items within a text input, such as campus location names, course codes, and dates, enabling the system to extract actionable information from natural language queries.
+Fuzzy Matching: A string comparison technique that identifies approximate matches between an input string and database entries using Levenshtein Distance, enabling LionPath to recognise misspelled or informally expressed campus location names.
+Dialogue Manager: A component of a conversational AI system that maintains the context of an ongoing conversation, enabling the system to interpret follow-up queries such as 'How do I get there?' by referencing the location mentioned in a previous turn.
+Landmark: A distinctive, visually recognisable physical feature of the Physical Sciences campus environment, such as a building, gate, statue, or junction, used as a reference point in the navigation module's turn-by-turn directional instructions.
+Node: A data point in the campus navigation graph representing a specific landmark or location within the Faculty of Physical Sciences zone, storing the location's formal name, local slang identifiers, visual description, and landmark photograph file path.
+Edge: A directional connection between two adjacent nodes in the campus navigation graph, storing the natural language instruction for traversing the path, the distance weight used by Dijkstra's Algorithm, and transport mode accessibility flags.
+Dijkstra's Algorithm: A graph traversal algorithm that computes the shortest path between a source node and a destination node in a weighted directed graph, used in the LionPath navigation module to compute optimal campus routes.
+spaCy: An open-source Python natural language processing library used in LionPath for intent classification and named entity recognition on user queries.
+TheFuzz: A Python library implementing Levenshtein Distance-based fuzzy string matching, used in LionPath to map informal or misspelled campus location names to their correct database records.
+Flask: A lightweight Python web framework used to build the LionPath web application, managing routing between the conversational frontend interface and the backend AI and database modules.
+MySQL: A relational database management system used to store all LionPath data including campus nodes, edges, events, orientation resources, course schedules, and administrator credentials, hosted on PythonAnywhere.
+Web Speech API: A browser-native JavaScript API providing speech recognition, which converts spoken user input to text, and speech synthesis, which converts system response text to spoken audio output, used in LionPath for voice input and spoken navigation directions.
+Knowledge Base: A structured repository of curated information used by the orientation module to answer natural language questions about UNN academic and administrative processes.
+PythonAnywhere: A cloud-based web hosting platform supporting Python web applications and MySQL databases, used to deploy LionPath as a publicly accessible web application.
+Multi-Modal Output: The delivery of system responses through more than one output channel simultaneously, used in LionPath to present navigation instructions as text, landmark photographs, and spoken audio in a single response.
+CHAPTER TWO
+LITERATURE REVIEW
+2.1Introduction
+This chapter presents the theoretical and empirical foundations of LionPath. It covers the concepts and technologies behind the development of the conversational AI assistant. It reviews  published works related to our system. Each work is analysed for its contribution, its similarity to this study, and its differences. It also states the research gap that LionPath addresses.
+2.2Theoretical Background
+This section presents the theoretical foundations of the study. It is divided into two parts: concepts and technology. The concepts subsection examines the principles behind conversational AI, natural language processing, intent classification, named entity recognition, fuzzy string matching, dialogue management, graph theory, shortest path algorithms, and landmark-based navigation. The technology subsection discusses the specific tools and platforms used to build LionPath, supported by evidence from successful case studies.
+2.2.1Concepts
+Conversational Artificial Intelligence (AI) and Dialogue Management
+It refers to systems that understand natural language input and generate appropriate responses. Unlike traditional interfaces that force users through menus and forms, conversational systems let users ask questions in plain language. This reduces cognitive load and lowers the barrier to information access. A conversational AI system has three core parts: natural language understanding (NLU) which parses input, a dialogue manager which tracks conversation state, and a natural language generator (NLG) which produces responses. For campus orientation, this is valuable because freshers often do not know the precise names of institutional services. They ask questions in their own words, and the system must infer intent and extract meaning from imprecise input.
+Natural Language Processing (NLP)
+It is the branch of AI concerned with enabling computers to understand and generate human language. NLP includes tokenisation, part-of-speech tagging, syntactic parsing, semantic analysis, and text classification. For LionPath, the most relevant tasks are intent classification and named entity recognition (NER). Intent classification determines the purpose of a user query. NER extracts specific items such as location names, course codes, and dates from unstructured text. These tasks turn raw user input into structured data that the system can act on. Intent classification assigns a predefined category to a user utterance based on its underlying purpose. In LionPath, the intents are navigate, event_query, orientation_help, timetable_query, and general_chat. Accurate intent classification is critical because it determines which backend module handles the query. NER complements this by identifying meaningful tokens within the utterance. For example, it recognises a location name as a location entity, a course code as a course entity, and a day of the week as a date entity. spaCy, an open-source Python NLP library, provides trainable text classification and NER pipelines that can be customised with domain-specific data. This makes it suitable for institutional applications where generic models may fail to recognise specialised terminology.
+Fuzzy String Matching Algorithms
+It finds strings that are approximately equal to a given pattern even when exact matches do not exist. It is essential in campus navigation because users frequently misspell location names or use informal abbreviations. The Levenshtein Distance algorithm measures the minimum number of single-character edits needed to transform one string into another. Token set ratio algorithms compare the similarity of word sets independent of order. TheFuzz, a Python library, implements these algorithms and enables LionPath to map imprecise user inputs to canonical database entries. Dialogue management maintains the state of a conversation across multiple turns. It enables the system to resolve follow-up references such as "How do I get there?" by looking back at entities mentioned in previous turns. Effective dialogue management turns isolated queries into coherent, context-aware interactions.
+Graph Theory and Shortest Path Optimization
+This provides the mathematical foundation for modelling campus navigation as a network of interconnected locations. A graph G = (V, E) consists of vertices V representing landmarks or decision points, and edges E representing traversable paths between them. Each edge has a weight representing the cost of traversal, typically distance in metres or time in minutes. Dijkstra's algorithm, developed by Edsger Dijkstra in 1959, computes the shortest path from a source vertex to all other vertices in a weighted graph with non-negative edge weights. It works by maintaining a priority queue of vertices ordered by their current shortest known distance from the source, relaxing edges iteratively until the shortest path to the destination is found. Dijkstra's algorithm is well suited to campus navigation because campus path networks are small compared to urban road networks, ensuring computation times well under one second.
+Landmark-Based Navigation 
+This uses visually distinct environmental features such as buildings, statues, gates, and junctions as reference points in directional instructions. It does not rely solely on metric distances or cardinal directions. Cognitive psychology research has established that humans naturally encode spatial environments in terms of landmarks and the relations between them. This makes landmark-based instructions more intuitive and memorable than metric alternatives. In a university campus context where street names are often absent and buildings have multiple formal and informal names, landmark-based navigation is not just helpful but necessary. Including landmark photographs at decision points further reduces ambiguity by giving users visual confirmation that they are on the correct path.
+2.2.2Technology
+Presentation Layer
+LionPath is a web application built on a standard three-tier architecture. The presentation layer uses HTML5, CSS3, JavaScript, and Bootstrap to deliver a responsive chat interface that works on both desktop and mobile browsers. Bootstrap provides pre-designed components for responsive layouts, ensuring consistent rendering across devices without custom media query engineering.
+Application Middleware
+The application layer uses Flask, a lightweight Python micro-framework that handles HTTP routing, request processing, and coordination between the NLP pipeline and backend modules. Flask has been used successfully in many educational technology projects because of its minimal overhead and extensive ecosystem of extensions. Grinberg (2018) provides a comprehensive guide to building production web applications with Flask.
+Database Management System
+The data layer uses MySQL, a relational database management system, to store campus graph data, events, orientation knowledge base entries, timetables, and administrator credentials. MySQL provides ACID compliance, referential integrity through foreign key constraints, and efficient querying through indexed columns. Gbadamosi, Ilori, Oduwale, and Abiona (2025) successfully used MySQL alongside Python in their GIS-based campus navigation system for OAUSTECH, demonstrating that this stack works for Nigerian university applications.
+Voice interaction is enabled through the Web Speech API, a browser-native JavaScript interface that provides speech recognition and speech synthesis without external API keys or cloud services. This ensures the system remains fully functional after the initial page load. Scalvini et al. (2024) demonstrated that locally processed speech synthesis enables faster and more reliable outdoor guidance than screen-only systems, supporting the use of voice output as a primary navigation channel.
+Natural Language Processing Pipeline
+The natural language processing pipeline is built using spaCy, an open-source Python library that provides industrial-strength tokenisation, part-of-speech tagging, dependency parsing, named entity recognition, and text classification. spaCy's trainable pipelines enable custom intent classification and domain-specific NER, which are essential for recognising UNN-specific terminology such as informal location names and course codes. Honnibal and Montani (2017) introduced spaCy 2 with Bloom embeddings, convolutional neural networks, and incremental parsing, establishing it as a production-grade NLP tool.
+Nguyen et al. (2021) demonstrated the effectiveness of NLP-based chatbots in educational settings through their Smart-Bot assistant, which used natural language understanding to answer student queries about admission, courses, and fees. Their work confirms that spaCy-level NLP tools are sufficient for institutional conversational agents without requiring proprietary cloud APIs.
+Fuzzy Name Resolution Engine
+Approximate string matching is implemented using TheFuzz, a Python library that implements Levenshtein Distance and token set ratio algorithms for approximate string matching. This enables the system to map misspelled or abbreviated inputs to canonical database entries. The shortest path computation module implements Dijkstra's algorithm on a weighted directed graph representing the Physical Sciences campus zone. Yan and Wong (2021) demonstrated in their Path Advisor system that Dijkstra's algorithm achieves query times under 0.05 seconds for 2D campus route visualisation, confirming its computational suitability for university-scale path networks. The entire application is deployed on PythonAnywhere, a cloud hosting platform that supports Python web applications and MySQL databases, making LionPath accessible from any device with a web browser and internet connection.
+2.3Review of Related Literature
+This section reviews six related works published between 2017 and 2025, selected for their relevance to campus navigation, conversational information systems, and multi-modal wayfinding. 
+Wenig, Schoning, Olwal, Wiehr, Kruger, and Dachselt (2017) presented Pharos, a smartwatch-based navigation system that improves directional instructions by adding globally visible landmarks into turn-by-turn guidance. Their study used a user experiment in which participants navigated unfamiliar urban environments using either landmark-enhanced or metric-only directions on a smartwatch. The results showed that users had significantly higher spatial comprehension and confidence when landmark references were included, compared to metric-only directions.
+This study is related to the present study because both use landmark-based directional instructions as a core navigational strategy. Both recognise that visible environmental features are more intuitive navigational anchors than distance measurements alone. Both aim to reduce disorientation in unfamiliar environments by anchoring directions to physically recognisable features. The difference between the two studies is that the former is restricted to smartwatch form factors and does not provide a conversational interface. Users receive pre-computed instructions rather than asking questions in natural language. It has no integration with institutional information such as events, timetables, or orientation procedures. It does not handle informal or misspelled place names. LionPath extends the landmark-based navigation principle to a web-based conversational assistant that combines navigation with three additional service modules.
+Schwering, Krukar, Li, Anacta, and Fuest (2017) proposed "Wayfinding Through Orientation," a navigation approach that supports spatial knowledge acquisition by embedding global landmarks and orientation cues into wayfinding instructions. Published in Spatial Cognition & Computation, the article reports three empirical studies demonstrating that navigation assistance providing orientation information and landmark references produces better survey knowledge and spatial comprehension than turn-by-turn metric directions alone. The researchers showed that users who received orientation-based instructions with landmark cues built more accurate cognitive maps of unfamiliar environments and demonstrated greater confidence in self-localisation tasks.
+This study is related to the present study because both share the theoretical foundation that landmark-based instructions produce superior spatial comprehension outcomes, particularly for first-time navigators. Both recognise that unfamiliar users rely on visible, memorable features rather than abstract distances or coordinates. The difference between the two studies is that the former focuses on orientation wayfinding as a general cognitive principle rather than a campus-specific implementation. It provides no conversational interface, no pathfinding algorithm tailored to a university graph, and no integration with academic information. LionPath translates these empirical findings into an operational campus assistant that combines landmark-based navigation with natural language query processing, timetable access, and event information.
+Yan and Wong (2021) developed Path Advisor, a web-based multi-functional campus map tool for shortest path visualisation at the Hong Kong University of Science and Technology. The system uses Dijkstra's shortest path algorithm on a predefined road network to compute routes, presenting results in 2D, bird's eye, and virtual reality views. The study evaluated query performance and user experience, achieving query times under 0.05 seconds for 2D views and under 0.1 seconds for 3D views. The researchers showed that locally curated campus path data outperforms generic mapping services for university environments where buildings, walkways, and restricted zones differ from public road networks.
+This study is related to the present study because both use web-based deployment, Dijkstra's algorithm for shortest path computation, campus-specific scope, and focus on wayfinding within a university environment. Both recognise that generic mapping tools are inadequate for campus navigation and that locally curated path networks are essential for accurate routing.The difference between the two studies is that the former is purely a navigation visualisation tool with no conversational interface. Users must select source and destination points through graphical interaction rather than natural language. It does not integrate orientation information, event listings, or timetable data. It does not handle informal or misspelled place names, nor does it provide voice output or landmark photographs at decision points. LionPath addresses these gaps by embedding navigation within a conversational assistant that understands natural language, resolves fuzzy names, and delivers multi-modal responses.
+Nguyen, Le, Hoang, and Nguyen (2021) developed NEU-chatbot, an AI-based chatbot for the National Economics University designed to streamline the admission process by providing instant information on curriculum, admission procedures, tuition fees, and other student inquiries. The chatbot was built using deep learning models integrated into the Rasa framework, achieving 97.1% accuracy in intent detection across more than fifty types of user questions. Deployed on the university's official Facebook page, the system demonstrated that NLP-based conversational agents can reduce the manual workload of admissions staff while improving accessibility for prospective students.
+This study is related to the present study because both use conversational AI for institutional information access, web-based architecture, and reduction of repetitive administrative queries. Both recognise that students prefer asking questions in natural language rather than navigating static web pages. The difference between the two studies is that the former is limited to admission-related queries on a social media platform and has no navigation module, no timetable query capability, and no event management. It does not implement dialogue management for multi-turn conversations, fuzzy name resolution for misspelled inputs, or voice output. LionPath advances this approach by integrating four service modules behind a unified AI pipeline with context-aware dialogue management.
+Scalvini, Bordeau, Ambard, Migniot, and Dubois (2024) developed an outdoor navigation assistive system based on a robust and real-time visual-auditory substitution approach, published in Sensors. The system converts visual scene information into spatialised audio cues, enabling users to navigate outdoor environments without relying on visual displays. It employs locally processed speech synthesis to deliver guidance, demonstrating that audio output can be faster and more reliable than screen-dependent systems in outdoor contexts. The study evaluated the system with visually impaired participants in real-world outdoor environments, achieving high accuracy in obstacle detection and path following through audio feedback alone.
+This study is related to the present study because both use multi-modal output approaches, specifically the integration of spoken audio as a primary delivery channel for navigation instructions. Both recognise that outdoor campus navigation benefits from audio output, freeing the user's attention from the screen. The difference between the two studies is that the former is designed as an assistive technology for visually impaired users, using visual-to-auditory substitution rather than natural language conversation. It has no chat interface, no understanding of user queries, no campus-specific knowledge base, and no integration with academic information. LionPath adopts the audio output principle but embeds it within a conversational assistant that processes natural language, understands campus-specific terminology, and combines voice with text and photographic landmarks.
+Gbadamosi, Ilori, Oduwale, and Abiona (2025) developed a smart GIS-based campus navigation and shortest path routing system for Olusegun Agagu University of Science and Technology (OAUSTECH) in Ondo State, Nigeria. The system models the campus as a weighted graph and implements Dijkstra's algorithm in Python to compute optimal routes, considering distance, pedestrian access, and restricted zones. It was deployed as an interactive web and mobile application using HTML, CSS, JavaScript, Bootstrap, and Android Studio. The study evaluated user satisfaction among 30 participants, achieving 87 percent satisfaction with average route generation times under two seconds. The researchers demonstrated that locally curated path data and Dijkstra's algorithm provide accurate and efficient campus routing in Nigerian university environments.
+This study is related to the present study because both target Nigerian university campuses, employ Dijkstra's algorithm for shortest path computation, use web-based deployment with standard front-end technologies, and address the inadequacy of generic mapping tools for institutional navigation. Both recognise that locally curated path data is essential for accurate campus routing. The difference between the two studies is that the former is a pure navigation tool with no conversational interface, no NLP pipeline, no intent classification, and no natural language query capability. It does not integrate orientation knowledge, event listings, or timetable data. It relies on GIS and coordinate-based data rather than landmark-based descriptive instructions, and it does not handle informal or misspelled place names. LionPath advances this model by adding a conversational AI layer that unifies navigation with institutional information access, using fuzzy matching for informal nomenclature and delivering multi-modal, landmark-based directions through natural language dialogue.
+2.4Research/Literature/Knowledge Gap
+After reviewing the research works done relating to the present study, the following research gap is identified. Existing systems address fragments of the campus information problem but none integrates the full spectrum of user needs within a single conversational interface. Navigation systems such as Path Advisor (Yan and Wong, 2021) and the OAUSTECH GIS platform (Gbadamosi et al., 2025) demonstrate that campus-specific pathfinding with Dijkstra's algorithm is technically feasible and user-effective, yet neither provides natural language interaction, orientation knowledge, event listings, or timetable access. Conversational assistants such as the NEU-chatbot system (Nguyen et al., 2021) show that NLP can reduce administrative workload in educational settings, but they lack navigation, multi-modal output, and dialogue context management. Landmark-based navigation research (Wenig et al., 2017; Schwering et al., 2017) establishes the cognitive superiority of landmark references over metric directions, but these works are either experimental studies or smartwatch-specific implementations without integration into a broader campus life assistant. Multi-modal output research (Scalvini et al., 2024) validates the value of audio guidance in outdoor environments, yet it targets assistive technology for the visually impaired rather than general student populations.
+The specific gap that this study addresses is the absence of a unified, open-access, conversational AI assistant that combines four essential campus life services behind a single natural language interface. No existing system simultaneously understands natural language queries about campus life across multiple domains, resolves informal and misspelled place names, maintains conversational context across multi-turn interactions, computes optimal routes on a locally curated campus graph, delivers landmark-based directions with photographs and voice output, and requires no user login or account creation. This gap is particularly acute in Nigerian university contexts such as UNN, where informal spatial naming, fragmented institutional information, and high first-year disorientation converge to create an environment where a unified conversational assistant is necessary. LionPath fills this gap by integrating an AI pipeline of intent classification, custom NER, fuzzy name resolution, and dialogue management with four service modules, all delivered through a responsive web interface accessible without authentication.
+CHAPTER THREE
+SYSTEMS ANALYSIS AND DESIGN METHODOLOGY
+3.1Introduction
+This chapter presents the research methodology adopted for the design and implementation of LionPath, the systems analysis of both the existing and proposed solutions, and the system design specifications. Section 3.1 explains several software development methodologies, justifies the selection of the Prototyping Model for this project, and describes how it was deployed. Section 3.2 presents the systems analysis, comprising the description and weaknesses of the existing orientation and information infrastructure at the Faculty of Physical Sciences, UNN, followed by the analysis of the proposed LionPath system including use case diagrams, activity diagrams, and a high-level model. Section 3.3 presents the system design, comprising the class diagram, sequence diagram, and database design with full table schemas.
+3.2Methodology
+The selection of an appropriate software development methodology is critical to the success of any software project. This section examines four methodologies and justifies the adoption of the Prototyping Model, supported by Object-Oriented Analysis and Design (OOADM) for system modelling, for the LionPath project.
+3.2.1Waterfall Model
+The Waterfall model is a linear, sequential approach to software development where each phase depends on the completion of the previous one. It is highly structured and documentation-intensive, making it suitable for projects with well-defined, stable requirements. However, its rigidity makes it poorly suited to projects where requirements are expected to evolve, such as AI-driven conversational systems where the performance of natural language models cannot be fully predicted during initial requirements gathering (Sommerville, 2016).
+3.2.2Structured Systems Analysis and Design Method (SSADM)
+SSADM is a formal approach to system design based on the Waterfall model, emphasising structured analysis through Data Flow Diagrams, Entity-Relationship Diagrams, and process models. It is highly formalised with specific phases including feasibility study, analysis, logical design, physical design, and implementation. While SSADM provides rigorous documentation and is effective for data-intensive administrative systems, its sequential nature and heavy emphasis on upfront specification make it unsuitable for projects involving iterative machine learning model calibration and user interface refinement (Ashworth and Goodland, 1990).
+3.2.3Object-Oriented Analysis and Design Method (OOADM)
+OOADM focuses on modelling a system as a collection of interacting objects, each encapsulating data and behaviour. It supports the use of Unified Modeling Language (UML) diagrams such as use case, class, sequence, and activity diagrams to represent system structure and dynamics. OOADM is effective for systems with complex object relationships and provides the design framework for producing the required UML diagrams. However, as a design methodology rather than a full lifecycle framework, it is typically supplemented by an overarching process model such as Prototyping or Waterfall to govern the iterative build-test-refine cycle (Booch, Rumbaugh, and Jacobson, 2005).
+3.2.4Prototyping Model
+The Prototyping Model is a software development approach in which a working prototype is built, tested, and refined iteratively based on evaluation outcomes and user feedback. Unlike the Waterfall model, Prototyping does not require complete specification before implementation begins. Instead, it embraces uncertainty and evolves the system through successive cycles of construction, demonstration, evaluation, and revision. Prototyping is typically classified into two forms: throwaway prototyping, where an initial prototype is built to clarify requirements and then discarded in favour of a full implementation; and evolutionary prototyping, where the prototype is progressively refined until it becomes the final system (Sommerville, 2016).
+Prototyping is particularly well suited to projects where user interaction patterns, interface design, and algorithmic behaviour cannot be fully specified in advance. In AI and natural language processing projects, the performance of intent classifiers, entity extractors, and dialogue managers can only be evaluated against real user inputs, making iterative refinement essential. Similarly, navigation systems require on-site verification of path networks, landmark visibility, and direction clarity, all of which benefit from early user testing and progressive improvement.
+3.2.5Justification for Adopting the Prototyping Model
+The Prototyping Model was selected as the primary software development lifecycle for the LionPath project for four principal reasons, with OOADM employed as the supporting design framework for UML modelling.
+First, the conversational AI pipeline comprising intent classification, named entity recognition, fuzzy name resolution, and dialogue management requires iterative training and evaluation against real user queries. The performance of these components cannot be fully specified at the outset. They must be refined through successive cycles of testing with sample user inputs. For example, the initial prototype of the intent classifier may misclassify "How do I get to my hostel?" as orientation_help rather than navigate. Through Prototyping, the training data is augmented, the model is retrained, and the prototype is retested until classification accuracy meets the required threshold.
+Second, the navigation module's path network and landmark database for the Physical Sciences zone required on-site verification and iterative correction of node positions, edge weights, and landmark descriptions. A prototype campus graph was constructed, tested with walking trials, and progressively refined as discrepancies between the graph and physical reality were identified. This empirical calibration is only possible through the build-test-refine cycles that Prototyping enables.
+Third, the user interface design for a multi-modal chat system supporting text, voice, and photographic output benefits from early and continuous user testing. An initial prototype of the chat interface was developed and demonstrated to sample users, whose feedback on readability, voice clarity, and photograph usefulness informed successive interface refinements. Prototyping places user feedback at the centre of the development process, ensuring the final interface meets actual user needs rather than assumed requirements.
+Fourth, the project's scope as a proof-of-concept for one faculty, with potential extension to others, aligns with Prototyping's principle of delivering a minimum viable product and iterating based on evaluation outcomes. The evolutionary prototype developed through this process progressively incorporated all four service modules until a fully functional system was achieved.
+The Prototyping lifecycle was deployed through four iterative cycles. Cycle 1 focused on requirements clarification and the development of a throwaway prototype comprising a basic chat interface and a preliminary database schema. Cycle 2 transitioned to evolutionary prototyping, implementing the NLP pipeline with spaCy intent classification and NER, and refining the models through testing with fifty sample campus queries. Cycle 3 integrated the navigation module, constructing the campus graph, implementing Dijkstra's algorithm, and refining landmark descriptions through walking trials. Cycle 4 integrated the events, timetable, and orientation modules, developed the administrator dashboard, and conducted system-wide testing with UNN Physical Sciences freshers and visitors. OOADM was employed throughout to produce the required UML diagrams that model the system's static structure and dynamic behaviour.
+3.3Systems Analysis
+Systems analysis examines the current operational environment to identify problems and define the requirements for an improved system. This section describes the existing information and navigation infrastructure at the Faculty of Physical Sciences, UNN, identifies its weaknesses, and analyses the proposed LionPath system in terms of its architecture, inputs, outputs, algorithms, and behavioural models.
+3.3.1Description of the Existing System
+The existing information and navigation infrastructure at the Faculty of Physical Sciences, UNN, operates through a combination of manual, paper-based, and fragmented digital channels. When a new student arrives on campus, they receive a printed orientation handbook during matriculation registration. This handbook contains general information about the university but lacks specific guidance on navigating the Physical Sciences zone, informal place names, or real-time event schedules. For navigation, students rely on physical signboards at major junctions, which are often faded, incomplete, or absent for informal routes. Senior students and peers serve as the primary navigational resource, with freshers asking for directions verbally. For academic timetables, departments post printed schedules on departmental notice boards; students must physically visit their department to photograph or copy the timetable. For campus events, notices are pinned to physical boards in faculty buildings and hostels, with some events announced through informal WhatsApp groups or social media pages that not all students follow. Administrative procedures such as course registration, fee payment, and ID card collection are explained during orientation lectures but are not available in any structured digital format for later reference. There is no single digital platform that integrates these four information domains, and no system that accepts natural language queries from students.
+3.3.2Weaknesses of the Existing System
+Fragmented Information Channels: Navigation, orientation, events, and timetable information exist in separate, disconnected systems. Notice boards, printed handbooks, word-of-mouth, and social media force freshers and visitors to consult multiple sources for related needs.
+No Natural Language Interface: Freshers and visitors cannot ask questions in their own words. They must know where to look before they can find what they need, which is particularly burdensome for people unfamiliar with university structures.
+Absence of Informal Name Recognition: Generic mapping applications such as Google Maps do not recognise the informal names students use for hostels, junctions, and shortcuts around the faculty. A fresher who types a local hostel name into Google gets no useful result.
+Static and Non-Contextual Information: Printed timetables, handbooks, and signboards provide static information that cannot handle follow-up questions, resolve ambiguous references, or adapt based on conversation history.
+Barrier to Access: Many proposed solutions require mobile app downloads, user registrations, or institutional logins, creating friction for casual visitors, prospective students, or freshers who have not yet obtained login credentials.
+Information Decay: Physical notice boards become outdated, printed handbooks are lost or left behind, and social media announcements are missed by students not in the relevant groups, leading to outdated or inaccessible information.
+Administrative Burden: Faculty and administrative staff are repeatedly asked the same informational questions by freshers and visitors who have no self-service alternative, diverting time from substantive academic and administrative duties.
+3.4Analysis of the Proposed System
+The proposed LionPath system is an intelligent web-based campus orientation assistant with a conversational natural language interface, designed for the Faculty of Physical Sciences, UNN. The system operates on a three-tier architecture: a presentation layer (HTML5, CSS3, JavaScript, Bootstrap), an application layer (Flask Python backend with spaCy NLP pipeline, TheFuzz fuzzy matcher, Dijkstra pathfinding engine, and dialogue manager), and a data layer (MySQL database hosted on PythonAnywhere). A fresher or visitor opens the LionPath web application in any browser, types or speaks a natural language query, and the system processes the input through the AI pipeline to deliver an appropriate multi-modal response.
+The input design accepts two forms of user input: text typed into a chat interface and voice captured through the browser's Web Speech API, which converts speech to text before processing. The output design delivers responses through three channels simultaneously where applicable: text displayed in the chat window, landmark photographs displayed at decision points during navigation, and spoken audio generated through the Web Speech API's speech synthesis component. The algorithm design comprises four core algorithms: (i) a text classification algorithm using spaCy's convolutional neural network for intent classification; (ii) a named entity recognition algorithm using spaCy's transition-based parser for extracting locations, course codes, and dates; (iii) a fuzzy string matching algorithm using TheFuzz's token set ratio for resolving informal and misspelled place names; and (iv) Dijkstra's shortest path algorithm for computing optimal routes across the campus graph.
+3.4.1 Use Case Diagram
+The use case diagram for LionPath identifies two primary actors and their interactions with the system. The Campus User actor represents any fresher, visitor, or parent who accesses the system without authentication. The Administrator actor represents authorised personnel who manage content through a secure dashboard.
+The Campus User actor interacts with six use cases: Ask Question (text or voice), which initiates a conversational query; Receive Navigation Directions, which provides landmark-based turn-by-turn routing; Query Orientation Information, which retrieves step-by-step guidance from the knowledge base; View Events and Notices, which displays upcoming faculty events with venue details; Query Department Timetable, which retrieves class schedules by department and level; and Receive Multi-Modal Output, which delivers text, photographs, and spoken responses. The Receive Multi-Modal Output use case extends the Ask Question use case, as it is triggered conditionally based on the query type.
+The Administrator actor interacts with four use cases: Manage Landmarks, which adds, edits, or deletes nodes and edges in the campus graph; Manage Orientation KB, which updates the structured knowledge base; Manage Events, which posts or removes event notices; and Manage Timetables, which uploads or modifies department schedule data. All administrator use cases include the Authenticate use case, as administrative access requires login credentials.
+Figure 3.1 Use Case Diagran
+3.4.2The Class Diagram
+The class diagram for LionPath models the system's static structure through seven primary classes and their relationships. The User class represents any individual interacting with the system, with attributes session_id (string), input_text (string), and timestamp (datetime). The ChatInterface class manages the frontend presentation, with attributes message_history (list) and methods render_response() and capture_input().
+The NLPipeline class encapsulates the natural language processing components, with attributes intent_classifier (spaCy model), ner_model (spaCy model), and fuzzy_matcher (TheFuzz instance). Its methods include classify_intent(user_input: str) returning Intent, extract_entities(user_input: str) returning List of Entity, and resolve_name(entity: Entity) returning Node. The DialogueManager class maintains conversation context, with attributes context_store (dictionary) and methods update_context(intent: Intent, entities: List of Entity), resolve_anaphora(current_query: str) returning Entity, and get_previous_entity() returning Entity.
+The NavigationService class handles pathfinding and direction generation, with attributes graph (Graph), dijkstra_engine (Dijkstra), and methods compute_route(source: Node, destination: Node, mode: TransportMode) returning Route, generate_directions(route: Route) returning str, and get_landmark_photo(node_id: int) returning str. The OrientationService, EventsService, and TimetableService classes each encapsulate their respective domain logic, with query methods that accept extracted entities and return formatted response objects. The AdminDashboard class provides authenticated access to content management, with methods add_node(), edit_event(), upload_timetable(), and authenticate(username: str, password: str) returning bool.
+The relationships between classes are as follows. User has a one-to-many association with ChatInterface, as a user may initiate multiple chat sessions. ChatInterface has a one-to-one composition with NLPipeline, since the pipeline is an integral part of the interface and cannot exist independently. NLPipeline has a one-to-one association with DialogueManager, as the pipeline passes extracted entities to the manager for context maintenance. DialogueManager has a one-to-many association with the four service classes, as it routes queries to the appropriate service based on intent. AdminDashboard has a one-to-many association with all database tables, as it manages content across all tables.
+Figure 3.2 Class Diagram
+3.4.3The Sequence Diagram
+The sequence diagram for LionPath models the interaction between objects during a typical navigation query, such as "How do I get to my hostel from the Computer Science building?" The diagram involves six objects: the User, the ChatInterface (frontend), the FlaskAPI (backend controller), the NLPipeline, the DialogueManager, and the NavigationService.
+The sequence begins with the User typing the query into the ChatInterface, which sends an HTTP POST request containing the query text and session ID to the FlaskAPI. The FlaskAPI forwards the query text to the NLPipeline, which invokes classify_intent() and returns the intent navigate with confidence score. The NLPipeline then invokes extract_entities(), returning two Entity objects: source equals Computer Science building and destination equals the hostel name. The NLPipeline passes these entities to the DialogueManager, which checks the context store for previous locations and finds none, confirming that the extracted entities are complete.
+The DialogueManager then invokes resolve_name() for both entities, returning canonical Node IDs from the database. The DialogueManager passes the resolved Node IDs and the transport mode (defaulting to foot) to the NavigationService. The NavigationService invokes compute_route() on its Dijkstra engine, which queries the Edge table to build the adjacency list, runs the shortest path algorithm, and returns a Route object comprising an ordered list of Node objects and cumulative distance. The NavigationService then invokes generate_directions(), which formats the route into landmark-based turn-by-turn instructions with natural language descriptions for each edge. The NavigationService also invokes get_landmark_photo() for each decision-point node, retrieving image file paths.
+The NavigationService returns a Response object containing the direction text, photo URLs, and speech synthesis text to the DialogueManager, which updates the context store with the destination node for potential anaphoric follow-up queries. The DialogueManager returns the Response to the FlaskAPI, which serialises it as JSON and sends it back to the ChatInterface. The ChatInterface renders the text directions, displays the landmark photographs, and triggers the Web Speech API to speak the directions aloud. The User may then submit a follow-up query su4ch as "What events are happening there?", and the sequence repeats with the DialogueManager resolving "there" to the previously stored destination node.
+Figure 3.3 Sequence Diagam
+3.4.4 Activity Diagram
+The activity diagram for LionPath models the workflow of processing a user query from input to response delivery. The process begins with the initial node representing the user opening the web application. The first activity is the user submitting a query via text or voice input. A decision node branches the flow: if voice input is detected, the Web Speech API converts speech to text before proceeding; if text input is detected, the flow continues directly to the next activity.
+The next activity is intent classification, where spaCy's text classification model categorises the query into one of five intents: navigate, orientation_help, event_query, timetable_query, or general_chat. A decision node then routes the flow based on the classified intent. For navigate queries, the flow proceeds to entity extraction (identifying source and destination locations), followed by fuzzy name resolution (mapping informal names to canonical database entries), then Dijkstra's shortest path computation on the weighted campus graph, and finally generation of landmark-based turn-by-turn directions with photographs and voice output. For orientation_help queries, the flow proceeds to keyword extraction from the knowledge base, retrieval of the relevant step-by-step guide, and formatting of the response with numbered steps. For event_query queries, the flow proceeds to date or keyword matching against the events table, retrieval of matching events with venue details, and formatting of the response with optional navigation links. For timetable_query queries, the flow proceeds to extraction of department, level, and course code entities, querying the timetables table, and formatting of the response with class venue, day, and time. For general_chat queries, the flow proceeds to a fallback response generator that provides polite, helpful default responses. All branches converge at a final activity where the multi-modal response is delivered to the user, followed by the dialogue manager updating the conversation context for the next turn. The process terminates at the final node, though the user may initiate a new query at any time.
+Figure 3.4 Activity Diagram
+3.3 System Design
+The system design of LionPath translates the analytical findings of the preceding section into a concrete technical specification for implementation. This section presents the input design, output design, and relational database schema that underlie all four functional modules of the system.
+3.3.3Database Design
+MySQL was selected as the database management system for LionPath due to its open-source licensing, ACID compliance, robust support for referential integrity through foreign key constraints, and native compatibility with the Flask-SQLAlchemy ORM. The database comprises six tables: nodes, edges, timetables, events, orientation_kb, and admin. Each table schema is presented below.
+Table 1: nodes
+Field
+Data Type
+Size
+NULL
+Description
+Action
+Extra
+node_id
+INT
+11
+No
+Unique identifier for each campus location
+Primary key
+Auto_increment
+formal_name
+VARCHAR
+100
+No
+Official name of the location
+informal_names
+VARCHAR
+255
+Yes
+Comma-separated slang or alias names
+category
+ENUM
+20
+No
+Type: building, hostel, junction, theatre, library, gate
+description
+TEXT
+Yes
+Visual description for landmark identification
+photo_path
+VARCHAR
+255
+Yes
+File path to landmark photograph
+latitude
+DECIMAL
+10,8
+Yes
+Geographic latitude (optional, for future GPS)
+longitude
+DECIMAL
+11,8
+Yes
+Geographic longitude (optional, for future GPS)
+Table 2: edges
+Field
+Data Type
+Size
+NULL
+Description
+Action
+Extra
+edge_id
+INT
+11
+No
+Unique identifier for each path segment
+Primary key
+Auto_increment
+source_node_id
+INT
+11
+No
+ID of the starting landmark or node
+Foreign key
+References nodes(node_id)
+destination_node_id
+INT
+11
+No
+ID of the ending landmark or node
+Foreign key
+References nodes(node_id)
+instruction
+TEXT
+No
+Natural language direction for traversing this edge
+distance_meters
+INT
+6
+No
+Distance weight in meters for Dijkstra
+time_foot
+INT
+4
+Yes
+Estimated walking time in minutes
+time_motorcycle
+INT
+4
+Yes
+Estimated motorcycle time in minutes
+time_car
+INT
+4
+Yes
+Estimated car time in minutes
+foot_accessible
+BOOLEAN
+1
+No
+Whether path is walkable
+DEFAULT 1
+motorcycle_accessible
+BOOLEAN
+1
+No
+Whether path allows motorcycle
+DEFAULT 1
+car_accessible
+BOOLEAN
+1
+No
+Whether path allows car
+DEFAULT 0
+Table 3: timetables
+Field
+Data Type
+Size
+NULL
+Description
+Action
+Extra
+timetable_id
+INT
+11
+No
+Unique identifier for each timetable entry
+Primary key
+Auto_increment
+department
+ENUM
+20
+No
+Department: CS, MATH, PHYS, CHEM, STAT, GEO
+level
+INT
+1
+No
+Academic level: 1,2,3,4,5 (100L-500L)
+course_code
+VARCHAR
+10
+No
+Course code (e.g., CSC 101)
+course_title
+VARCHAR
+100
+No
+Full course title
+day_of_week
+ENUM
+10
+No
+Day: Monday, Tuesday, Wednesday, Thursday, Friday
+start_time
+TIME
+No
+Class start time
+end_time
+TIME
+No
+Class end time
+venue
+VARCHAR
+100
+No
+Lecture venue or building
+lecturer
+VARCHAR
+100
+Yes
+Course lecturer name
+Table 4: events
+Field
+Data Type
+Size
+NULL
+Description
+Action
+Extra
+event_id
+INT
+11
+No
+Unique identifier for each event
+Primary key
+Auto_increment
+title
+VARCHAR
+150
+No
+Event title
+description
+TEXT
+Yes
+Detailed event description
+venue
+VARCHAR
+100
+No
+Event location (references node formal_name)
+event_date
+DATE
+No
+Date of the event
+start_time
+TIME
+No
+Event start time
+end_time
+TIME
+Yes
+Event end time
+organiser
+VARCHAR
+100
+Yes
+Department or body organising the event
+created_at
+DATETIME
+No
+Timestamp when event was posted
+DEFAULT CURRENT_TIMESTAMP
+Table 5: orientation_kb
+Field
+Data Type
+Size
+NULL
+Description
+Action
+Extra
+kb_id
+INT
+11
+No
+Unique identifier for each KB entry
+Primary key
+Auto_increment
+category
+ENUM
+20
+No
+Topic: registration, fees, id_card, hostel, general
+question_pattern
+TEXT
+No
+Example natural language questions this entry answers
+answer
+TEXT
+No
+Structured step-by-step answer content
+priority
+INT
+2
+No
+Display priority for multiple matches
+DEFAULT 1
+created_at
+DATETIME
+No
+Timestamp when entry was added
+DEFAULT CURRENT_TIMESTAMP
+updated_at
+DATETIME
+Yes
+Timestamp when entry was last modified
+Table 6: admin
+Field
+Data Type
+Size
+NULL
+Description
+Action
+Extra
+admin_id
+INT
+11
+No
+Unique identifier for administrator
+Primary key
+Auto_increment
+username
+VARCHAR
+50
+No
+Administrator login username
+UNIQUE
+password_hash
+VARCHAR
+255
+No
+BCrypt hashed password
+full_name
+VARCHAR
+100
+No
+Administrator full name
+email
+VARCHAR
+100
+No
+Administrator email address
+UNIQUE
+role
+ENUM
+15
+No
+Role: super_admin, content_manager
+DEFAULT 'content_manager'
+last_login
+DATETIME
+Yes
+Timestamp of last successful login
+created_at
+DATETIME
+No
+Account creation timestamp
+DEFAULT CURRENT_TIMESTAMP
+The database design employs referential integrity constraints: the edges table contains two foreign keys (source_node_id and destination_node_id) referencing the nodes table, ensuring that every path segment connects valid campus locations. The timetables, events, and orientation_kb tables are independent but share the ENUM data type for categorical fields, ensuring data consistency. The admin table is isolated from the public-facing schema, with password hashes stored using BCrypt for security. All tables use InnoDB as the storage engine to support foreign key constraints and ACID transactions.
+REFERENCES
+Ashworth, C., and Goodland, M. (1990). SSADM: A Practical Approach. McGraw-Hill.
+Booch, G., Rumbaugh, J., and Jacobson, I. (2005). The Unified Modeling Language User Guide (2nd ed.). Addison-Wesley.
+Cormen, T. H., Leiserson, C. E., Rivest, R. L., and Stein, C. (2009). Introduction to Algorithms (3rd ed.). MIT Press.
+Gbadamosi, O. A., Ilori, A. O., Oduwale, M. A., and Abiona, O. O. (2025). Development of a smart GIS-based campus navigation and shortest path routing system for OAUSTECH, Ondo State, Nigeria. Review of Information Engineering and Applications, 12(1), 48-58. https://doi.org/10.18488/79.v12i1.4656 
+Grinberg, M. (2018). Flask Web Development: Developing Web Applications with Python (2nd ed.). O'Reilly Media.
+Honnibal, M., and Montani, I. (2017). spaCy 2: Natural language understanding with Bloom embeddings, convolutional neural networks and incremental parsing. https://spacy.io
+Jurafsky, D., and Martin, J. H. (2022). Speech and Language Processing: An Introduction to Natural Language Processing, Computational Linguistics, and Speech Recognition (3rd ed.). Stanford University.
+Lambe, P. R., Patil, K. V., Patil, M. P., and Patil, S. V. (2026). Campus Navigator: Smart Campus Navigation System. International Journal of Novel Research and Development, 11(4), c379-c386. https://www.ijnrd.org/papers/IJNRD2604249.pdf
+Nguyen, T. T., Le, A. D., Hoang, H. T., and Nguyen, T. (2021). NEU-chatbot: Chatbot for admission of National Economics University. Computers and Education: Artificial Intelligence, 2, 100036. https://doi.org/10.1016/j.caeai.2021.100036 
+Scalvini, F., Bordeau, C., Ambard, M., Migniot, C., and Dubois, J. (2024). Outdoor navigation assistive system based on robust and real-time visual-auditory substitution approach. Sensors, 24(1), 166. https://doi.org/10.3390/s24010166
+Schwering, A., Krukar, J., Li, R., Anacta, V. J., and Fuest, S. (2017). Wayfinding through orientation. Spatial Cognition & Computation. https://doi.org/10.1080/13875868.2017.1322597 
+Sommerville, I. (2016). Software Engineering (10th ed.). Pearson.
+Wenig, D., Schoning, J., Olwal, A., Wiehr, F., Kruger, A., and Dachselt, R. (2017). Pharos: Improving navigation instructions on smartwatches by including global landmarks. In Proceedings of the 19th International Conference on Human-Computer Interaction with Mobile Devices and Services (MobileHCI 2017) (pp. 1-12). ACM. https://brenthecht.com/publications/mobilehci2017_pharos.pdf 
+Yan, Y., and Wong, R. C.-W. (2021). Path Advisor: A multi-functional campus map tool for shortest path. Proceedings of the VLDB Endowment, 14(12), 2683-2686. https://doi.org/10.14778/3476311.3476319 

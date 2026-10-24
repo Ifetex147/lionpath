@@ -1,0 +1,224 @@
+/* Base Font Settings */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom Scrollbar for the Chat Box */
+#chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+#chat-box::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 4px;
+}
+
+/* Hide the default flex column layout on chat-box since we now use wrappers */
+#chat-box {
+    display: block; 
+}
+
+/* Base styling for all chat bubbles */
+.message {
+    padding: 12px 20px;
+    border-radius: 20px;
+    max-width: 80%;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    word-wrap: break-word;
+    white-space: pre-wrap; /* Preserves numbered lists and clean line breaks */
+}
+
+/* User Message - UNN Green */
+.user-msg {
+    background-color: #0d5c2e;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+/* Bot Message - Clean White */
+.bot-msg {
+    background-color: #ffffff;
+    color: #212529;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Typing Indicator Animation */
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 18px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 7px;
+    height: 7px;
+    background-color: #0d5c2e;
+    border-radius: 50%;
+    animation: typingPulse 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes typingPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Style the audio toggle switch to match the green theme */
+.form-check-input:checked {
+    background-color: #0d5c2e;
+    border-color: #0d5c2e;
+}
+
+/* Override Bootstrap's default blue focus ring with UNN Green */
+#message-input:focus {
+    border-color: #0d5c2e;
+    box-shadow: 0 0 0 0.25rem rgba(13, 92, 46, 0.25);
+}
+
+/* Circular Microphone Button */
+.btn-mic {
+    width: 55px;
+    height: 55px;
+    background-color: #d4edda;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-mic:hover {
+    background-color: #c3e6cb;
+    transform: scale(1.05);
+}
+
+
+/* --- QUICK REPLY CHIPS --- */
+.quick-replies-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.quick-chip {
+    background-color: #f0fdf4;
+    color: #0d5c2e;
+    border: 1px solid #86efac;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.quick-chip:hover:not(:disabled) {
+    background-color: #0d5c2e;
+    color: #ffffff;
+    border-color: #0d5c2e;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(13,92,46,0.25);
+}
+
+.quick-chip:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* --- INTERACTIVE SVG CAMPUS MAP --- */
+.campus-map-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.svg-map-wrapper {
+    background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-edge {
+    stroke: #cbd5e1;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke 0.3s ease;
+}
+
+.map-node-group {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.map-node-group:hover circle.node-circle {
+    stroke-width: 4;
+    stroke: #0d5c2e;
+    filter: drop-shadow(0 0 6px rgba(13,92,46,0.35));
+}
+
+.map-node-group:hover text.node-label {
+    font-weight: bold;
+    fill: #0d5c2e;
+}
+
+/* Glowing Animated Walking Path */
+.route-active-line {
+    stroke: #10b981;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 10, 8;
+    animation: walkingPathAnimation 1.2s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.7));
+}
+
+@keyframes walkingPathAnimation {
+    from {
+        stroke-dashoffset: 36;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.node-pulse-start {
+    animation: pulseStart 1.5s infinite ease-in-out;
+}
+
+.node-pulse-dest {
+    animation: pulseDest 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseStart {
+    0%, 100% { r: 14; opacity: 1; }
+    50% { r: 20; opacity: 0.6; }
+}
+
+@keyframes pulseDest {
+    0%, 100% { r: 16; opacity: 1; }
+    50% { r: 24; opacity: 0.5; }
+}

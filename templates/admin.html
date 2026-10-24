@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LionPath | Knowledge Base Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .admin-sidebar { min-height: 100vh; background-color: #1e293b; }
+        .nav-link { color: #94a3b8; margin-bottom: 6px; font-weight: 500; border-radius: 8px; }
+        .nav-link.active { background-color: #0d5c2e !important; color: white !important; }
+        .nav-link:hover { color: white; background-color: rgba(255,255,255,0.05); }
+        .badge-count { font-size: 0.75rem; vertical-align: middle; }
+        .table-responsive { max-height: 520px; overflow-y: auto; }
+        .card { border-radius: 12px; border: 1px solid #e2e8f0; }
+        .just-added-row { background-color: #d1e7dd !important; animation: glowFade 4s forwards; }
+        @keyframes glowFade {
+            0% { background-color: #a3cfbb; }
+            70% { background-color: #d1e7dd; }
+            100% { background-color: transparent; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar Navigation -->
+            <div class="col-md-3 col-lg-2 admin-sidebar p-3 text-white">
+                <div class="d-flex align-items-center mb-4 pt-2">
+                    <h4 class="mb-0 fw-bold">🦁 LionPath</h4>
+                    <span class="badge bg-success ms-2">Admin</span>
+                </div>
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link {% if active_tab == 'faq' %}active{% endif %} text-start d-flex justify-content-between align-items-center" data-bs-toggle="pill" data-bs-target="#v-pills-faq" type="button" role="tab">
+                        <span>📚 FAQs</span>
+                        <span class="badge bg-light text-dark badge-count">{{ faqs|length if faqs else 0 }}</span>
+                    </button>
+                    <button class="nav-link {% if active_tab == 'building' %}active{% endif %} text-start d-flex justify-content-between align-items-center" data-bs-toggle="pill" data-bs-target="#v-pills-building" type="button" role="tab">
+                        <span>🏢 Landmarks</span>
+                        <span class="badge bg-light text-dark badge-count">{{ nodes|length if nodes else 0 }}</span>
+                    </button>
+                    <button class="nav-link {% if active_tab == 'timetable' %}active{% endif %} text-start d-flex justify-content-between align-items-center" data-bs-toggle="pill" data-bs-target="#v-pills-timetable" type="button" role="tab">
+                        <span>🕒 Timetables</span>
+                        <span class="badge bg-light text-dark badge-count">{{ timetables|length if timetables else 0 }}</span>
+                    </button>
+                    <button class="nav-link {% if active_tab == 'event' %}active{% endif %} text-start d-flex justify-content-between align-items-center" data-bs-toggle="pill" data-bs-target="#v-pills-event" type="button" role="tab">
+                        <span>🎉 Events</span>
+                        <span class="badge bg-light text-dark badge-count">{{ events|length if events else 0 }}</span>
+                    </button>
+
+                    <hr class="text-secondary my-4">
+                    <a href="/admin/logout" class="btn btn-outline-danger btn-sm w-100 text-start">🚪 Logout</a>
+                    <a href="/" class="btn btn-outline-light btn-sm w-100 text-start mt-2">💬 View Chatbot</a>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 col-lg-10 p-4 p-md-5">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    <div class="mb-4">
+                      {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                          <strong>Notice:</strong> {{ message }}
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
+                <div class="tab-content" id="v-pills-tabContent">
+                    
+                    <!-- 1. FAQ TAB -->
+                    <div class="tab-pane fade {% if active_tab == 'faq' %}show active{% endif %}" id="v-pills-faq" role="tabpanel">
+                        <div class="row g-4">
+                            <!-- Add Form -->
+                            <div class="col-lg-5">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <h5 class="fw-bold mb-3 text-dark">Add New Orientation FAQ</h5>
+                                    <form action="/admin/add_faq" method="POST">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Category</label>
+                                            <select name="category" class="form-select" required>
+                                                <option value="fees">Fees & Payments</option>
+                                                <option value="registration_steps">Course Registration</option>
+                                                <option value="registration_deadline">Registration Deadline</option>
+                                                <option value="clearance">Faculty Clearance Requirements</option>
+                                                <option value="clearance_deadline">Clearance Deadline</option>
+                                                <option value="id_card">Student ID Card</option>
+                                                <option value="hostel">Hostel Accommodation</option>
+                                                <option value="medicals">Medical Centre</option>
+                                                <option value="library">Library Services</option>
+                                                <option value="wifi">Campus Wi-Fi</option>
+                                                <option value="grading">CGPA & Grading</option>
+                                                <option value="exams">Examination Rules</option>
+                                                <option value="food">Dining & Cafeterias</option>
+                                                <option value="facilities">Printing & Cyber Cafes</option>
+                                                <option value="faculty_admin">Administration</option>
+                                                <option value="general">General Advice</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Question Patterns (comma-separated)</label>
+                                            <textarea name="question_pattern" class="form-control" rows="2" placeholder="how to pay fees, school charges, acceptance fee..." required></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Answer Text</label>
+                                            <textarea name="answer" class="form-control" rows="4" placeholder="Detailed step-by-step guidance..." required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">Save FAQ</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Records Table -->
+                            <div class="col-lg-7">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="fw-bold mb-0 text-dark">Existing Orientation FAQs</h5>
+                                        <span class="badge bg-secondary">{{ faqs|length if faqs else 0 }} entries</span>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle small mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Category</th>
+                                                    <th>Sample Questions</th>
+                                                    <th class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if faqs %}
+                                                  {% for f in faqs %}
+                                                    <tr class="{% if new_id and f.kb_id == new_id %}just-added-row fw-bold{% endif %}">
+                                                        <td>
+                                                            <span class="badge bg-primary-subtle text-primary border">{{ f.category }}</span>
+                                                            {% if new_id and f.kb_id == new_id %}
+                                                                <span class="badge bg-success ms-1">✨ Just Added</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-truncate" style="max-width: 240px;" title="{{ f.question_pattern }}">
+                                                            {{ f.question_pattern }}
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <form action="/admin/delete_faq/{{ f.kb_id }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this FAQ entry?')">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                  {% endfor %}
+                                                {% else %}
+                                                    <tr><td colspan="3" class="text-center text-muted py-3">No FAQs in database.</td></tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. BUILDINGS TAB -->
+                    <div class="tab-pane fade {% if active_tab == 'building' %}show active{% endif %}" id="v-pills-building" role="tabpanel">
+                        <div class="row g-4">
+                            <!-- Add Form -->
+                            <div class="col-lg-5">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <h5 class="fw-bold mb-3 text-dark">Add Campus Landmark</h5>
+                                    <form action="/admin/add_node" method="POST" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Formal Name</label>
+                                            <input type="text" name="formal_name" class="form-control" placeholder="e.g. Science Lecture Theatre" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Informal Names / Aliases (comma-separated)</label>
+                                            <input type="text" name="informal_names" class="form-control" placeholder="SLT, science theatre, theatre A">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Category</label>
+                                            <select name="category" class="form-select">
+                                                <option value="building">Academic Building</option>
+                                                <option value="theatre">Lecture Theatre</option>
+                                                <option value="library">Library</option>
+                                                <option value="gate">School Gate / Entrance</option>
+                                                <option value="hostel">Hostel Accommodation</option>
+                                                <option value="junction">Junction / Walkway Hub</option>
+                                                <option value="cafeteria">Cafeteria / Food</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Description</label>
+                                            <input type="text" name="description" class="form-control" placeholder="Visual appearance for navigation">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Upload Photo</label>
+                                            <input type="file" name="photo_file" class="form-control" accept="image/*">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Save Landmark</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Records Table -->
+                            <div class="col-lg-7">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="fw-bold mb-0 text-dark">Registered Campus Landmarks</h5>
+                                        <span class="badge bg-secondary">{{ nodes|length if nodes else 0 }} buildings</span>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle small mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Formal Name</th>
+                                                    <th>Category</th>
+                                                    <th>Aliases</th>
+                                                    <th class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if nodes %}
+                                                  {% for n in nodes %}
+                                                    <tr class="{% if new_id and n.node_id == new_id %}just-added-row fw-bold{% endif %}">
+                                                        <td class="fw-semibold">
+                                                            {{ n.formal_name }}
+                                                            {% if new_id and n.node_id == new_id %}
+                                                                <span class="badge bg-success ms-1">✨ Just Added</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td><span class="badge bg-info-subtle text-info-emphasis border">{{ n.category }}</span></td>
+                                                        <td class="text-muted text-truncate" style="max-width: 180px;" title="{{ n.informal_names }}">{{ n.informal_names or '-' }}</td>
+                                                        <td class="text-end">
+                                                            <form action="/admin/delete_node/{{ n.node_id }}" method="POST" class="d-inline" onsubmit="return confirm('Deleting this building also deletes connected walking routes. Continue?')">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                  {% endfor %}
+                                                {% else %}
+                                                    <tr><td colspan="4" class="text-center text-muted py-3">No landmarks registered.</td></tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. TIMETABLES TAB -->
+                    <div class="tab-pane fade {% if active_tab == 'timetable' %}show active{% endif %}" id="v-pills-timetable" role="tabpanel">
+                        <div class="row g-4">
+                            <!-- Add Form -->
+                            <div class="col-lg-5">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <h5 class="fw-bold mb-3 text-dark">Add Class Timetable</h5>
+                                    <form action="/admin/add_timetable" method="POST">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Course Code</label>
+                                            <input type="text" name="course_code" class="form-control" placeholder="e.g. COS 101, MTH 101" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Course Title (Optional)</label>
+                                            <input type="text" name="course_title" class="form-control" placeholder="e.g. Computing Practice">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Department / Programme</label>
+                                            <select name="department" class="form-select" required>
+                                                <option value="General">General / All Faculty</option>
+                                                <option value="Computer Science">Computer Science</option>
+                                                <option value="Computer Science & Statistics">Computer Science & Statistics</option>
+                                                <option value="Geology">Geology</option>
+                                                <option value="Mathematics">Mathematics</option>
+                                                <option value="Physics & Astronomy">Physics & Astronomy</option>
+                                                <option value="Pure & Industrial Chemistry">Pure & Industrial Chemistry</option>
+                                                <option value="Science Laboratory Technology">Science Laboratory Technology (SLT)</option>
+                                                <option value="Statistics">Statistics</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Day of Week</label>
+                                            <select name="day" class="form-select" required>
+                                                <option value="Monday">Monday</option>
+                                                <option value="Tuesday">Tuesday</option>
+                                                <option value="Wednesday">Wednesday</option>
+                                                <option value="Thursday">Thursday</option>
+                                                <option value="Friday">Friday</option>
+                                                <option value="Saturday">Saturday</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Time</label>
+                                            <input type="text" name="time" class="form-control" placeholder="e.g. 10:00 AM - 12:00 PM" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Venue</label>
+                                            <input type="text" name="venue" class="form-control" placeholder="e.g. Science Lecture Theatre" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-warning w-100 py-2 text-dark fw-bold">Save Timetable</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Records Table -->
+                            <div class="col-lg-7">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="fw-bold mb-0 text-dark">Class Schedules</h5>
+                                        <span class="badge bg-secondary">{{ timetables|length if timetables else 0 }} lectures</span>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle small mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Course</th>
+                                                    <th>Dept</th>
+                                                    <th>Day & Time</th>
+                                                    <th>Venue</th>
+                                                    <th class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if timetables %}
+                                                  {% for t in timetables %}
+                                                    <tr class="{% if new_id and t.id == new_id %}just-added-row fw-bold{% endif %}">
+                                                        <td>
+                                                            <div class="fw-bold">
+                                                                {{ t.course_code }}
+                                                                {% if new_id and t.id == new_id %}
+                                                                    <span class="badge bg-success ms-1">✨ Just Added</span>
+                                                                {% endif %}
+                                                            </div>
+                                                            <small class="text-muted">{{ t.course_title or '' }}</small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-light text-dark border">{{ t.department or 'General' }}</span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ t.day }}</span>
+                                                            <div class="small text-muted">{{ t.time }}</div>
+                                                        </td>
+                                                        <td class="text-muted fw-semibold">{{ t.venue }}</td>
+                                                        <td class="text-end">
+                                                            <form action="/admin/delete_timetable/{{ t.id }}" method="POST" class="d-inline" onsubmit="return confirm('Delete timetable for {{ t.course_code }}?')">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                  {% endfor %}
+                                                {% else %}
+                                                    <tr><td colspan="5" class="text-center text-muted py-3">No timetable entries.</td></tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. EVENTS TAB -->
+                    <div class="tab-pane fade {% if active_tab == 'event' %}show active{% endif %}" id="v-pills-event" role="tabpanel">
+                        <div class="row g-4">
+                            <!-- Add Form -->
+                            <div class="col-lg-5">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <h5 class="fw-bold mb-3 text-dark">Add Campus Event</h5>
+                                    <form action="/admin/add_event" method="POST">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Event Title</label>
+                                            <input type="text" name="title" class="form-control" placeholder="e.g. Dean's Welcome Address" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Date & Time</label>
+                                            <input type="text" name="date_time" class="form-control" placeholder="e.g. Friday at 10:00 AM" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-semibold">Venue</label>
+                                            <input type="text" name="venue" class="form-control" placeholder="e.g. Faculty Quadrangle" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-info w-100 py-2 text-white fw-bold">Save Event</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Records Table -->
+                            <div class="col-lg-7">
+                                <div class="card p-4 shadow-sm border-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="fw-bold mb-0 text-dark">Scheduled Campus Events</h5>
+                                        <span class="badge bg-secondary">{{ events|length if events else 0 }} events</span>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle small mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Date & Time</th>
+                                                    <th>Venue</th>
+                                                    <th class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if events %}
+                                                  {% for ev in events %}
+                                                    <tr class="{% if new_id and ev.id == new_id %}just-added-row fw-bold{% endif %}">
+                                                        <td class="fw-semibold">
+                                                            {{ ev.title }}
+                                                            {% if new_id and ev.id == new_id %}
+                                                                <span class="badge bg-success ms-1">✨ Just Added</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td><span class="badge bg-light text-dark border">{{ ev.date_time }}</span></td>
+                                                        <td class="text-muted">{{ ev.venue }}</td>
+                                                        <td class="text-end">
+                                                            <form action="/admin/delete_event/{{ ev.id }}" method="POST" class="d-inline" onsubmit="return confirm('Delete event: {{ ev.title }}?')">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                  {% endfor %}
+                                                {% else %}
+                                                    <tr><td colspan="4" class="text-center text-muted py-3">No events scheduled.</td></tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

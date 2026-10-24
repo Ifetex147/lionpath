@@ -1,0 +1,11 @@
+{
+  "labels":[
+    "navigate",
+    "orientation_help",
+    "event_query",
+    "timetable_query",
+    "general_chat"
+  ],
+  "threshold":0.0,
+  "positive_label":null
+}
