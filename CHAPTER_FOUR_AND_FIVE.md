@@ -11,7 +11,7 @@ The chapter is systematically structured into four core divisions: Section 4.1 e
 The selection of an appropriate development and runtime environment is foundational to the performance, scalability, maintainability, and accessibility of an intelligent campus navigation system (Pressman & Maxim, 2020; Sommerville, 2016). LionPath integrates diverse computational sub-disciplines—including natural language understanding, fuzzy lexical resolution, graph traversal algorithms, relational database persistence, responsive web interfaces, and client-side audio synthesis. Consequently, the development environment was chosen to balance high developer productivity with sub-second runtime execution on both low-end mobile devices and cloud hosting infrastructures.
 
 1. Operating System and Server Environment:
-The core development workstation was hosted on a 64-bit Microsoft Windows 11 operating system environment. For production staging and cloud deployment, a containerized Linux environment (Ubuntu 22.04 LTS x86_64 architecture) hosted on the Render cloud Platform-as-a-Service (PaaS) infrastructure was selected. Linux provides POSIX-compliant threading, minimal memory overhead, native daemonization, and superior execution speeds for Python WSGI application servers.
+The core development workstation was hosted on a 64-bit Microsoft Windows 11 operating system environment. For production staging and cloud deployment, a dedicated Linux application hosting environment (Ubuntu 22.04 LTS x86_64 architecture) hosted on the PythonAnywhere cloud Web Server Gateway Interface (WSGI) platform was selected. PythonAnywhere provides persistent daemonization, zero cold-start latency, native virtual environment isolation, and immediate accessibility across the university network without requiring container spin-up delays.
 
 2. Programming Language (Python 3.10+):
 Python was selected as the primary backend implementation language. Python offers concise syntax, dynamic typing, mature object-oriented paradigms, and an unmatched ecosystem of artificial intelligence, computational linguistics, and algorithmic graph packages (Grinberg, 2018). Furthermore, Python's built-in memory management and high-performance standard library data structures—specifically the binary min-heap `heapq` module and associative dictionaries—provide optimal execution primitives for Dijkstra's shortest path routing algorithm.
@@ -38,7 +38,7 @@ The client-side user interface was constructed using HTML5 semantic markup, CSS3
 To support multi-modal accessibility for visually impaired visitors and hands-free pedestrian wayfinding, LionPath integrates the W3C Web Speech Synthesis API (World Wide Web Consortium [W3C], 2014). Voice instructions are synthesized directly on the client's browser hardware via `window.speechSynthesis`, eliminating external cloud third-party API subscription fees and achieving zero-latency auditory playback during campus navigation.
 
 10. Integrated Development Environment (IDE) & Deployment Tooling:
-Development was conducted using Visual Studio Code (VS Code) configured with Python language servers (Pylance), Git source control integration, and Markdown linters. Version control was managed via Git and hosted on GitHub. Production serving is powered by Gunicorn (Green Unicorn), a battle-tested WSGI HTTP server executing multi-worker POSIX process forks bound to port 0.0.0.0 on Render cloud PaaS.
+Development was conducted using Visual Studio Code (VS Code) configured with Python language servers (Pylance), Git source control integration, and Markdown linters. Version control was managed via Git and hosted on GitHub (repository: `https://github.com/Ifetex147/lionpath.git`). Production serving is powered by a high-performance WSGI server daemon running on PythonAnywhere cloud infrastructure, securely binding the application to `https://ifetexx.pythonanywhere.com` with end-to-end HTTPS encryption.
 
 ## 4.2 Implementation Architecture
 
@@ -365,32 +365,32 @@ To verify the reliability of individual components, the automated test suite `te
 
 Empirical evaluation was conducted using the automated evaluation harness `evaluate_system.py`. The conversational intent classifier was evaluated on both the in-sample training partition ($N=78$) and an independent out-of-sample test partition ($N=27$) consisting of unseen conversational variations. Tables 4.4 through 4.9 summarize the experimental findings.
 
-| Metric | In-Sample Training Set (N=78) | Out-of-Sample Test Set (N=27) |
+| Metric | In-Sample Training Set (N=92) | Out-of-Sample Test Set (N=27) |
 | :--- | :--- | :--- |
-| Total Evaluated Queries | 78 | 27 |
-| Correctly Classified Queries | 78 | 27 |
-| Overall Intent Accuracy | 100.00% | 100.00% |
-| Macro-Averaged Precision | 100.00% | 100.00% |
-| Macro-Averaged Recall | 100.00% | 100.00% |
-| Macro-Averaged F1-Score | 100.00% | 100.00% |
+| Total Evaluated Queries | 92 | 27 |
+| Correctly Classified Queries | 92 | 25 |
+| Overall Intent Accuracy | 100.00% | 92.59% |
+| Macro-Averaged Precision | 100.00% | 94.29% |
+| Macro-Averaged Recall | 100.00% | 92.67% |
+| Macro-Averaged F1-Score | 100.00% | 92.63% |
 
 *Table 4.4: Overall Intent Classification Performance Summary*
 
 | Intent Class Category | Support (N) | Precision (%) | Recall (%) | F1-Score (%) |
 | :--- | :--- | :--- | :--- | :--- |
-| navigate (Campus Wayfinding) | 6 | 100.00% | 100.00% | 100.00% |
+| navigate (Campus Wayfinding) | 6 | 100.00% | 83.33% | 90.91% |
 | orientation_help (Freshers FAQs) | 6 | 100.00% | 100.00% | 100.00% |
-| event_query (Campus Events) | 5 | 100.00% | 100.00% | 100.00% |
+| event_query (Campus Events) | 5 | 100.00% | 80.00% | 88.89% |
 | timetable_query (Lectures) | 5 | 100.00% | 100.00% | 100.00% |
-| general_chat (Chit-Chat / Greetings) | 5 | 100.00% | 100.00% | 100.00% |
+| general_chat (Chit-Chat / Greetings) | 5 | 71.43% | 100.00% | 83.33% |
 
 *Table 4.5: Per-Class Evaluation Breakdown on Unseen Test Partition*
 
 | Actual \ Predicted | navigate | orientation_help | event_query | timetable_query | general_chat |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| navigate | 6 | 0 | 0 | 0 | 0 |
+| navigate | 5 | 0 | 0 | 0 | 1 |
 | orientation_help | 0 | 6 | 0 | 0 | 0 |
-| event_query | 0 | 0 | 5 | 0 | 0 |
+| event_query | 0 | 0 | 4 | 0 | 1 |
 | timetable_query | 0 | 0 | 0 | 5 | 0 |
 | general_chat | 0 | 0 | 0 | 0 | 5 |
 
@@ -398,35 +398,35 @@ Empirical evaluation was conducted using the automated evaluation harness `evalu
 
 | Evaluation Metric | Measured Value |
 | :--- | :--- |
-| True Positives (TP) | 6 |
-| False Positives (FP) | 5 |
-| False Negatives (FN) | 3 |
-| Entity Recognition Precision | 54.55% |
-| Entity Recognition Recall | 66.67% |
-| Entity Recognition F1-Score | 60.00% |
+| True Positives (TP) | 9 |
+| False Positives (FP) | 2 |
+| False Negatives (FN) | 0 |
+| Entity Recognition Precision | 81.82% |
+| Entity Recognition Recall | 100.00% |
+| Entity Recognition F1-Score | 90.00% |
 
 *Table 4.7: Named Entity Recognition (NER) Performance Metrics*
 
 | Graph Characteristic / Performance Parameter | Measured Empirical Value |
 | :--- | :--- |
-| Total Campus Landmark Nodes (|V|) | 16 nodes |
-| Total Navigable Pathway Edges (|E|) | 32 directed edges |
-| Total Evaluated Source-Destination Node Pairs | 240 pairs |
-| Routable Paths Successfully Resolved | 240 paths (100.0%) |
-| Mean Dijkstra Execution Latency | 0.0140 milliseconds |
-| Median (P50) Execution Latency | 0.0122 milliseconds |
-| Maximum Dijkstra Execution Latency | 0.3335 milliseconds |
+| Total Campus Landmark Nodes (|V|) | 27 nodes |
+| Total Navigable Pathway Edges (|E|) | 110 directed edges |
+| Total Evaluated Source-Destination Node Pairs | 702 pairs |
+| Routable Paths Successfully Resolved | 702 paths (100.0%) |
+| Mean Dijkstra Execution Latency | 0.1107 milliseconds |
+| Median (P50) Execution Latency | 0.0929 milliseconds |
+| Maximum Dijkstra Execution Latency | 2.3606 milliseconds |
 
 *Table 4.8: Graph Topology and Dijkstra Routing Latency*
 
 | System Processing Phase / Metric | Measured Latency (Milliseconds) |
 | :--- | :--- |
-| Minimum End-to-End Inference Latency | 3.01 ms |
-| Median (P50) End-to-End Latency | 3.81 ms |
-| Mean End-to-End Inference Latency | 3.91 ms |
-| 95th Percentile (P95) Latency | 4.71 ms |
-| Maximum End-to-End Inference Latency | 5.14 ms |
-| Human Conversational Perception Threshold | 200.00 ms (System operates 51x faster) |
+| Minimum End-to-End Inference Latency | 7.15 ms |
+| Median (P50) End-to-End Latency | 8.32 ms |
+| Mean End-to-End Inference Latency | 8.79 ms |
+| 95th Percentile (P95) Latency | 11.67 ms |
+| Maximum End-to-End Inference Latency | 12.56 ms |
+| Human Conversational Perception Threshold | 200.00 ms (System operates 22x faster) |
 
 *Table 4.9: End-to-End System Response Latency Metrics*
 
@@ -564,24 +564,26 @@ This user manual provides step-by-step operational instructions for installing, 
 
 2. Server Installation & Configuration Procedure:
   Step 1: Clone the repository or extract the project source files to the local directory:
-          git clone https://github.com/lionpath/lionpath-assistant.git
+          git clone https://github.com/Ifetex147/lionpath.git
           cd lionpath
   Step 2: Create and activate an isolated Python virtual environment:
           python -m venv venv
           venv\Scripts\activate  (on Windows)  OR  source venv/bin/activate  (on Linux/macOS)
-  Step 3: Upgrade pip and install all required library dependencies:
-          pip install --upgrade pip
-          pip install -r requirements.txt
-  Step 4: Download the spaCy natural language English linguistic model:
-          python -m spacy download en_core_web_sm
-  Step 5: Initialize the database and populate default landmarks, edges, timetables, and orientation FAQs:
-          python init_db.py
-  Step 6: Start the development web server:
-          flask run --host=127.0.0.1 --port=5000
-          (For production deployment, run: gunicorn --bind 0.0.0.0:5000 app:app)
+  Step 3: Upgrade pip and install required library dependencies:
+          pip install --no-cache-dir "numpy<2.0.0"
+          pip install --no-cache-dir -r requirements.txt
+  Step 4: Verify the custom-trained domain linguistic model (`lionpath_nlp`):
+          python -c "import spacy; spacy.load('lionpath_nlp')"
+  Step 5: Initialize the database and populate all authentic UNN landmarks, edges, timetables, and orientation FAQs:
+          python seed.py
+  Step 6: Start the web server:
+          Local execution: python app.py  (runs on http://127.0.0.1:5000)
+          Production deployment: Configure WSGI daemon on PythonAnywhere pointing to app:application.
 
 3. End-User Operational Guide:
-  - Accessing the System: Launch a web browser and navigate to the application URL (e.g., `http://127.0.0.1:5000/` or the public Render domain).
+  - Accessing the System: Launch a web browser and navigate to the application URL:
+    * Live Cloud Production Address: https://ifetexx.pythonanywhere.com
+    * Local Defense Demo Address: http://127.0.0.1:5000/
   - Conversational Interaction: Type any campus query into the chat bar at the bottom of the screen and press Enter (or click Send). Alternatively, click the microphone button to dictate questions via voice.
   - Wayfinding Guidance: Request directions using formal names or campus slang (e.g., 'From Computer Science to SLT'). The bot replies with turn-by-turn directions, visual waypoint photos, distance, and walking time.
   - Listening to Audio Directions: Click the 'Listen' button on any route card to hear synthesized spoken directions read aloud.
