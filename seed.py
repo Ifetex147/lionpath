@@ -19,9 +19,7 @@ def seed_database():
         db.drop_all()
         db.create_all()
 
-        # =========================================================================
         # 1. CAMPUS LANDMARKS & BUILDINGS (NODES)
-        # =========================================================================
         nodes = {
             "carver": Node(
                 formal_name="Carver Building",
@@ -219,9 +217,7 @@ def seed_database():
         db.session.commit()
         print(f"Added {len(nodes)} campus landmarks and lecture nodes.")
 
-        # =========================================================================
         # 2. CONNECTED WALKWAY EDGES (GRAPH TOPOLOGY WITH GROUND TRUTH DATA)
-        # =========================================================================
         raw_routes = [
             # Carver ->
             ("carver", "na_lib", 240, 
@@ -463,9 +459,7 @@ def seed_database():
         db.session.commit()
         print(f"Added {len(all_edges)} walkway edges with ground-truth distance & timings.")
 
-        # =========================================================================
         # 3. VERIFIED FRESHMAN ONBOARDING KNOWLEDGE BASE (FAQS)
-        # =========================================================================
         kb_entries = [
             OrientationKB(
                 category="clearance",
@@ -717,9 +711,7 @@ Faculty clearance for all 100-Level freshmen typically closes **4 to 6 weeks** f
         db.session.commit()
         print(f"Added {len(kb_entries)} verified onboarding & clearance QA guides.")
 
-        # =========================================================================
         # 4. OFFICIAL CAMPUS & FACULTY EVENTS
-        # =========================================================================
         events = [
             Event(
                 title="Faculty of Physical Sciences 100L Orientation",
@@ -743,9 +735,7 @@ Faculty clearance for all 100-Level freshmen typically closes **4 to 6 weeks** f
         db.session.commit()
         print(f"Added {len(events)} official faculty events.")
 
-        # =========================================================================
         # 5. AUTHENTIC 100L FIRST-SEMESTER LECTURE TIMETABLES (8 TRACKS)
-        # =========================================================================
         # Raw timetable schedule mapping
         timetable_raw = [
             # 1. Computer Science
@@ -853,7 +843,7 @@ Faculty clearance for all 100-Level freshmen typically closes **4 to 6 weeks** f
         db.session.commit()
         print(f"Added {len(timetable_raw)} official departmental timetable rows.")
 
-        print("=== DATABASE SEED COMPLETE: 100% AUTHENTIC UNN GROUND TRUTH DATA ===")
+        print("Database seeding completed successfully.")
 
 if __name__ == "__main__":
     seed_database()

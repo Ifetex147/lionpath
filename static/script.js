@@ -4,7 +4,7 @@ const input = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
 const micBtn = document.getElementById("mic-btn");
 
-// --- CAMPUS MAP DATA & COORDINATES ---
+// Campus map node coordinates and walkway edges
 const CAMPUS_NODES = {
     1:  { id: 1,  x: 170, y: 220, name: "Computer Science", fullName: "Computer Science Building", icon: "💻", color: "#2563eb", desc: "Three-storey brown block with computing labs." },
     11: { id: 11, x: 310, y: 220, name: "Faculty Quadrangle", fullName: "Faculty Quadrangle and Car Park", icon: "🚗", color: "#64748b", desc: "Open courtyard and parking area between CS and Physics." },
@@ -39,7 +39,7 @@ const CAMPUS_EDGES = [
     [14, 15]
 ];
 
-// --- TEXT-TO-SPEECH (Voice Output) ---
+// Speech synthesis (TTS)
 let availableVoices = [];
 
 function loadVoices() {
@@ -87,7 +87,7 @@ function speakText(text) {
     window.speechSynthesis.speak(utterance);
 }
 
-// --- MARKDOWN FORMATTING ---
+// Markdown parsing and photo rendering
 function formatMarkdown(text) {
     if (!text) return "";
 
@@ -127,7 +127,7 @@ function formatMarkdown(text) {
     return safe;
 }
 
-// --- TYPING INDICATOR ---
+// Typing indicator
 function showTypingIndicator() {
     removeTypingIndicator();
 
@@ -159,7 +159,7 @@ function removeTypingIndicator() {
     if (el) el.remove();
 }
 
-// --- UI AND MESSAGING ---
+// Chat messaging UI
 function addMessage(text, isUser, imageUrl = null, options = [], routeData = null) {
     const wrapper = document.createElement("div");
     wrapper.style.display = "flex";
@@ -279,7 +279,7 @@ input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") sendMessage();
 });
 
-// --- GLOBAL CHIPS LISTENER ---
+// Quick-reply chip listeners
 document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', function() {
         const q = this.getAttribute('data-query') || this.textContent;
@@ -287,7 +287,7 @@ document.querySelectorAll('.chip').forEach(chip => {
     });
 });
 
-// --- SPEECH-TO-TEXT (Voice Input) ---
+// Speech recognition (STT)
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition && micBtn) {
     const recognition = new SpeechRecognition();
@@ -320,9 +320,7 @@ if (SpeechRecognition && micBtn) {
     micBtn.style.display = "none";
 }
 
-// =========================================================================
-// INTERACTIVE SVG CAMPUS MAP ENGINE
-// =========================================================================
+// Interactive SVG Campus Map Engine
 function initCampusMap() {
     const edgesGroup = document.getElementById("mapEdgesGroup");
     const nodesGroup = document.getElementById("mapNodesGroup");

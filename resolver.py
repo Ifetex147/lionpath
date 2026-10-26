@@ -100,7 +100,7 @@ def resolve_location(text):
     clean_norm = _normalize_ordinals(clean)
 
     nodes = Node.query.all()
-    # Pass 1: Exact matches across all nodes (formal name or alias, raw and ordinal-normalized)
+    # Exact match lookup
     for node in nodes:
         candidates = [node.formal_name] + (node.informal_names or "").split(",")
         for candidate in candidates:
@@ -113,7 +113,7 @@ def resolve_location(text):
             if c_norm and (c_norm == query_norm or c_norm == clean_norm):
                 return node
 
-    # Pass 2: Best Fuzzy Match across all nodes with Ordinal Discrimination
+    # Fuzzy match lookup using token set and sort ratios
     best_node = None
     best_score = 0
 

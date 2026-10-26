@@ -18,7 +18,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "lionpath-secret-key-change-in-prod")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///lionpath.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# Tell Flask where to save uploaded images (inside your static folder)
+# Image upload directory
 app.config["UPLOAD_FOLDER"] = "static/images"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True) 
 db.init_app(app)
@@ -32,7 +32,7 @@ contexts = {}
 def handle_navigate(session_id, locations, clean_message):
     ctx = contexts[session_id]
 
-    # --- DIRECT 'FROM X TO Y' OR 'TO Y FROM X' PARSING ---
+    # Parse 'from X to Y' and 'to Y from X' route requests
     from_to = re.search(r"\bfrom\s+(.+?)\s+to\s+(.+)", clean_message)
     if from_to:
         src_raw = from_to.group(1).strip()
@@ -263,7 +263,7 @@ def handle_general_chat(clean_message, session_id=None):
     msg = clean_message.strip().lower()
     ctx = contexts.get(session_id, {}) if session_id else {}
 
-    # -1. User Name & Personal Identity
+    # User name and identity
     if re.search(r"\b(what is my name|who am i|do you know my name|what'?s my name)\b", msg):
         user_name = ctx.get("user_name")
         if user_name:
@@ -289,7 +289,7 @@ def handle_general_chat(clean_message, session_id=None):
             "options": ["Campus Directions", "Lecture Schedules", "Orientation FAQs", "How is CGPA calculated?"]
         }
 
-    # 0. Date & Time Utilities
+    # Date and time responses
     if re.search(r"\b(today'?s\s+date|what\s+is\s+(the\s+)?date|what\s+is\s+todays?\s+date|date\s+today|what\s+date\s+is\s+it)\b", msg):
         now = datetime.now()
         return {
@@ -309,7 +309,7 @@ def handle_general_chat(clean_message, session_id=None):
             "text": f"📅 Today is **{now.strftime('%A')}**, {now.strftime('%B %d, %Y')}."
         }
 
-    # 1. Greetings
+    # Greetings
     if re.search(r"\b(hi|hello|hey|good morning|good afternoon|good evening|howdy|greetings)\b", msg):
         return {
             "text": "Hello! I'm **LionPath**, your campus assistant for the Faculty of Physical Sciences, UNN.\n\n"
@@ -323,7 +323,7 @@ def handle_general_chat(clean_message, session_id=None):
             "options": ["Campus Directions", "Lecture Schedules", "Orientation FAQs", "How is CGPA calculated?"]
         }
 
-    # 2. Capabilities & Help
+    # Help and capabilities
     if re.search(r"\b(what can you do|help|capabilities|how does this work|features|commands|what do you know)\b", msg):
         return {
             "text": "Here is everything I can help you with:\n\n"
@@ -335,14 +335,14 @@ def handle_general_chat(clean_message, session_id=None):
                     "Try asking: *'How do I do clearance?'* or *'Where is Carver Building?'*"
         }
 
-    # 3. Identity & Project Origin
+    # About LionPath
     if re.search(r"\b(who are you|what is your name|who made you|who created you|project|about you)\b", msg):
         return {
             "text": "I am **LionPath**, an intelligent campus guide and assistant built for the Faculty of Physical Sciences at the University of Nigeria, Nsukka.\n\n"
                     "I was developed as a Final Year Project combining Graph Theory (Dijkstra's Shortest Path Algorithm), Natural Language Processing (spaCy), and relational campus data to support student orientation and micro-navigation."
         }
 
-    # 4. UNN Facts & History
+    # UNN overview and facts
     if re.search(r"\b(unn|university of nigeria|motto|history|vice chancellor|vc|nsukka)\b", msg):
         return {
             "text": "🏛️ **University of Nigeria, Nsukka (UNN)**:\n"
@@ -352,7 +352,7 @@ def handle_general_chat(clean_message, session_id=None):
                     "• **Campuses**: Nsukka (Main Campus), Enugu Campus (UNEC), and Ituku-Ozalla (Teaching Hospital/College of Medicine)."
         }
 
-    # 5. Tips & Advice for Freshers
+    # Freshers orientation tips
     if re.search(r"\b(advice|tips|freshers?|new student|survival|succeed)\b", msg):
         return {
             "text": "💡 **Key Advice for Freshers in Physical Sciences**:\n"
@@ -363,13 +363,13 @@ def handle_general_chat(clean_message, session_id=None):
                     "5. **Use campus study spaces**: Faculty Library and Nnamdi Azikiwe Library offer quiet revision zones."
         }
 
-    # 6. Conversational Acknowledgments (e.g., "okay", "alright", "got it", "noted")
+    # Conversational acknowledgments
     if re.search(r"^(ok|okay|k|alright|all right|got it|understood|noted|cool|sure|fine|great|nice|perfect|good|awesome|sounds good|yes|yeah|yep|no|nope|no problem|no worries)\b", msg):
         return {
             "text": "Glad to help! 😊 Let me know if you need any other directions, lecture schedules, or campus info."
         }
 
-    # 7. Gratitude & Courtesy
+    # Gratitude and farewells
     if re.search(r"\b(thank you|thanks|appreciated|bless you|good job)\b", msg):
         return {
             "text": "You're very welcome! Feel free to ask anytime you need directions, timetables, or campus guidance around UNN."
@@ -380,7 +380,7 @@ def handle_general_chat(clean_message, session_id=None):
             "text": "Goodbye! Have a great time on campus. LionPath is always here whenever you need assistance."
         }
 
-    # 7. Fallback checks: test if this query actually matches location, timetable, or orientation
+    # Check if input matches location or orientation before fallback
     resolved_loc = resolve_location(msg)
     if resolved_loc:
         return {
@@ -391,7 +391,7 @@ def handle_general_chat(clean_message, session_id=None):
     if "I couldn't find an exact match" not in orientation_answer:
         return {"text": orientation_answer}
 
-    # Default friendly fallback
+    # Default fallback response
     return {
         "text": "I'm not completely sure about that. I specialize in:\n"
                 "• 🗺️ **Campus Directions**: *'How do I get to SLT?'* or *'Where is Carver Building?'*\n"
@@ -409,7 +409,7 @@ def handle_message(message, session_id):
 
     clean_message = message.lower().strip()
 
-    # --- PHYSICS DISAMBIGUATION CHECK ---
+    # Physics theory vs practical disambiguation
     if ctx.get("pending") == "awaiting_physics_type":
         phy_res = get_physics_timetable(clean_message)
         if phy_res and phy_res != "DISAMBIGUATE_PHYSICS":
@@ -428,7 +428,7 @@ def handle_message(message, session_id):
                 "options": ["PHY 115 Theory", "PHY 121 Practical", "Both Physics Classes"]
             }
 
-    # --- DEPARTMENT TIMETABLE SELECTION CHECK ---
+    # Department selection for lecture schedules
     if ctx.get("pending") == "awaiting_user_department":
         dept = resolve_department(clean_message)
         if dept:
@@ -460,7 +460,7 @@ def handle_message(message, session_id):
                 ]
             }
 
-    # --- LOCATION DISAMBIGUATION STATES ---
+    # Location disambiguation states
     if ctx.get("pending") == "awaiting_library_source":
         target = resolve_disambiguated_location(clean_message, "AMBIGUOUS_LIBRARY")
         if target:
@@ -571,10 +571,9 @@ def handle_message(message, session_id):
                 "text": "Are you heading to the **Faculty Science Canteen** or **Franco Refectory**?"
             }
 
-    # --- STATE INTERRUPT / ESCAPE CHECK ---
-    # If the bot was awaiting origin, check if user provided a starting landmark:
+    # Handle responses when awaiting starting location:
     if ctx["pending"] == "awaiting_source":
-        # 1. Check for standalone ambiguous location (e.g. user just typed "library" or "canteen")
+        # Check for ambiguous location terms
         ambig = check_location_ambiguity(clean_message)
         if ambig == "AMBIGUOUS_LIBRARY":
             ctx["pending"] = "awaiting_library_source"
@@ -589,12 +588,12 @@ def handle_message(message, session_id):
                 "options": ["Faculty Science Canteen", "Franco Refectory"]
             }
         
-        # 2. Check if user typed or clicked a valid starting location on campus (handles hostels, gates, buildings)
+        # Check if input matches a valid campus landmark
         source = resolve_location(clean_message)
         if source:
             return finish_route(session_id, source, ctx["destination"])
 
-        # 3. If NOT a location, did the user ask a new question, change topic, or ask an orientation/timetable FAQ?
+        # Check if user switched to an orientation or timetable question
         is_question = bool(re.search(r"\b(what|how|who|when|where|why|tell|is there|can you|hi|hello|advice|cgpa|grade|fee|fees|card|cards|event|events|timetable|schedule|clearance|register|registration|admission|hostel|medicals?|wifi|clionet)\b", clean_message))
         is_cancel = bool(re.search(r"\b(cancel|stop|nevermind|back|reset)\b", clean_message))
         
@@ -604,17 +603,17 @@ def handle_message(message, session_id):
         else:
             return {"text": f"I couldn't find '{message}' as a starting point on campus. What is the nearest building, hostel, or gate to start from?"}
 
-    # --- EXPLICIT DOMAIN ROUTING (HIGH CONFIDENCE KEYWORDS) ---
-    # 0. Conversational Acknowledgments (e.g. "ok", "okay", "alright", "cool", "noted", "got it", "fine")
+    # Keyword routing
+    # Acknowledgments
     if re.search(r"^(ok|okay|k|alright|all right|got it|understood|noted|cool|sure|fine|great|nice|perfect|good|awesome|sounds good|yes|yeah|yep|no|nope|no problem|no worries)\b", clean_message):
         return {
             "text": "Glad to help! 😊 Let me know if you need any other directions, lecture schedules, or campus info."
         }
-    # 1. Direct UNN History / Facts / Date & Time Utilities
+    # Date, time, and university overview queries
     if re.search(r"\b(about unn|unn motto|history of unn|when was unn founded|who founded unn|motto of unn|tell me about unn|today'?s\s+date|what\s+is\s+(the\s+)?date|what\s+is\s+todays?\s+date|date\s+today|what\s+date\s+is\s+it|what\s+day\s+is\s+today|what\s+time\s+is\s+it|current\s+time)\b", clean_message):
         return handle_general_chat(clean_message, session_id)
 
-    # 1.5 Menu Topic Shortcuts (when user clicks or types suggested topics)
+    # Quick menu shortcuts
     if re.search(r"^\s*(campus\s+directions?|directions?|navigation|wayfinding)\s*$", clean_message):
         ctx["pending"] = "awaiting_destination"
         return {
@@ -646,7 +645,7 @@ def handle_message(message, session_id):
             "options": ["School Fees & Remita", "Faculty Clearance Requirements", "Hostel Allocation", "Library Card", "Medical Registration", "How is CGPA calculated?"]
         }
 
-    # 2. Direct Navigation Trigger
+    # Navigation queries
     nav_pattern = (
         r"\b("
         r"how\s+(?:do\s+i|can\s+i|to|goi|i)\s+(?:get|go|reach|find|locate|attend)|"
@@ -673,7 +672,7 @@ def handle_message(message, session_id):
         locations = [ent.text for ent in doc.ents if ent.label_ == "LOCATION"]
         return handle_navigate(session_id, locations, clean_message)
 
-    # 2.5 Standalone Department Timetable Inquiry (e.g. user clicked or typed department name alone)
+    # Standalone department timetable queries
     dept_standalone = resolve_department(clean_message)
     if dept_standalone:
         ctx["user_department"] = dept_standalone
@@ -682,9 +681,9 @@ def handle_message(message, session_id):
             "text": f"🎓 **Official 100-Level Lecture Schedule for {dept_standalone}**:\n\n{tt}\n\n💡 *Need directions to any of your lecture venues? Just ask, e.g. 'Directions to Abuja Building' or 'Where is FPSLT?'*"
         }
 
-    # 3. Direct Timetable Trigger ("timetable", "schedule", "classes", "lecture time", "what time is", "when is", course codes)
+    # Lecture timetable queries
     if re.search(r"\b(timetable|schedule|classes|lectures?|what time is|when is|when do we have)\b", clean_message) or re.search(r"\b(monday|tuesday|wednesday|thursday|friday|saturday)\b", clean_message) or re.search(r"\b(cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt)\s*(\d{3})?\b", clean_message):
-        # A. Check for Personal / Open-ended Inquiries ("what classes do I have", "my timetable", "my classes")
+        # Personal timetable inquiries
         personal_tt_match = re.search(r"\b(what classes? do (i|we) have|which classes? do (i|we) have|what are my classes|what lectures? do (i|we) have|my classes|my lectures|my timetable|my schedule|show (me )?my classes|what class(es)? do i have)\b", clean_message)
         if personal_tt_match:
             # Extract day if mentioned
@@ -737,18 +736,18 @@ def handle_message(message, session_id):
                 ctx["last_location"] = v.strip()
         return {"text": reply_text}
 
-    # 4. Direct Event Trigger ("events", "seminar", "symposium", "conference", "party", "colloquium")
+    # Campus event queries
     if re.search(r"\b(events?|seminars?|symposium|programmes?|party|colloquium|workshops?)\b", clean_message):
         reply_text = get_events()
         if "@" in reply_text:
             ctx["last_location"] = reply_text.split("@")[-1].strip()
         return {"text": reply_text}
 
-    # 5. Direct Orientation / FAQs Trigger ("clearance", "cgpa", "gpa", "fees", "remita", "hostel", "id card", "library", "wifi", "eduroam", "medical", "exam", "food", "dean", "hod", "print")
+    # Orientation and clearance FAQ queries
     if re.search(r"\b(cleara?nce|clerance|cgpa|gpa|grading|grade|fees?|remita|rrr|hostel|id card|library|wi-?fi|eduroam|medical|clinic|doctor|docket|exams?|malpractice|food|canteen|franco|dean|hod|officer|photocopy|print|laptop|lunch|eat|meals?)\b", clean_message):
         return {"text": answer_orientation(clean_message)}
 
-    # --- ML / SPACY NLP CLASSIFICATION ---
+    # spaCy NLP intent classification and entity extraction
     doc = nlp(clean_message)
     intent = max(doc.cats, key=doc.cats.get)
     confidence_score = doc.cats[intent]
@@ -852,7 +851,7 @@ def chat():
         "session_id": session_id
     })
 
-# --- ADMIN AUTHENTICATION ---
+# Admin authentication
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD_HASH = os.environ.get(
     "ADMIN_PASSWORD_HASH",
@@ -897,7 +896,7 @@ def admin_logout():
     return redirect(url_for("admin_login"))
 
 
-# --- ADMIN DASHBOARD ROUTES ---
+# Admin dashboard routes
 
 @app.route("/admin")
 @admin_required
