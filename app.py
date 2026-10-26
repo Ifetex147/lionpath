@@ -654,11 +654,27 @@ def handle_message(message, session_id):
         if source:
             return finish_route(session_id, source, ctx["destination"])
 
-        # Check if user switched to an orientation or timetable question
-        is_question = bool(re.search(r"\b(what|how|who|when|where|why|tell|is there|can you|hi|hello|advice|cgpa|grade|fee|fees|card|cards|event|events|timetable|schedule|clearance|register|registration|admission|hostel|medicals?|wifi|clionet)\b", clean_message))
-        is_cancel = bool(re.search(r"\b(cancel|stop|nevermind|back|reset)\b", clean_message))
-        
-        if is_question or is_cancel:
+        # Check if user switched to another topic, event, course, orientation question, or cancellation
+        topic_switch_pattern = (
+            r"\b("
+            r"what|how|who|when|where|why|tell|is\s+there|can\s+you|hi|hello|hey|help|advice|"
+            r"orientation|matriculation|matric|freshers?|event|events|seminars?|symposium|"
+            r"cgpa|grade|grading|gpa|fees?|charges?|remita|rrr|receipt|"
+            r"card|cards|id\s+card|library\s+card|"
+            r"timetable|schedule|classes|lectures?|"
+            r"cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt|\d{3}|"
+            r"clearance|register|registration|admission|acceptance|"
+            r"hostel|hostels|bedspace|accommodation|room|porter|"
+            r"medicals?|clinic|doctor|health\s+centre|"
+            r"wifi|wi-fi|clionet|internet|"
+            r"cancel|stop|nevermind|back|reset|no"
+            r")\b"
+        )
+        is_topic_switch = bool(re.search(topic_switch_pattern, clean_message))
+        if not is_topic_switch:
+            is_topic_switch = bool(resolve_target_venue(clean_message) or resolve_event_venue(clean_message)[0])
+
+        if is_topic_switch:
             ctx["pending"] = None
             # Drop down to process as a fresh question or command!
         else:
@@ -817,6 +833,33 @@ def handle_message(message, session_id):
             if v:
                 ctx["last_location"] = v.strip()
         return {"text": reply_text}
+
+    # Check if query targets a specific known Campus Event (e.g. "freshers orientation", "matriculation")
+    ev, ev_venue = resolve_event_venue(clean_message)
+    if ev:
+        if ev_venue:
+            ctx["pending"] = "awaiting_source"
+            ctx["destination"] = ev_venue
+            ctx["last_location"] = ev_venue.formal_name
+            if "ekpo" in ev.venue.lower():
+                text_msg = (
+                    f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n"
+                    f"• **Ekpo Ref**: Head up the hill past the **Student Affairs Building** (beside the statue of a woman's face).\n"
+                    f"• **Departmental Sessions**: Held at your respective departmental lecture halls (NCSB, Carver, Abuja Building, Geology).\n\n"
+                    f"Where are you starting from, on your way to **{ev_venue.formal_name}**?"
+                )
+            else:
+                venue_display = f"**{ev_venue.formal_name}**" if ev.venue.lower() in ev_venue.formal_name.lower() or ev_venue.formal_name.lower() in ev.venue.lower() else f"**{ev.venue}** (at {ev_venue.formal_name})"
+                text_msg = f"🎉 **{ev.title}** takes place at {venue_display} ({ev.date_time}).\n\nWhere are you starting from, on your way there?"
+            return {
+                "text": text_msg,
+                "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
+            }
+        else:
+            ctx["last_location"] = ev.venue
+            return {
+                "text": f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n(Note: This venue is situated outside the immediate Faculty of Physical Sciences walking graph)."
+            }
 
     # Campus event queries
     if re.search(r"\b(events?|seminars?|symposium|programmes?|party|colloquium|workshops?)\b", clean_message):
