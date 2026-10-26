@@ -714,14 +714,14 @@ Faculty clearance for all 100-Level freshmen typically closes **4 to 6 weeks** f
         # 4. OFFICIAL CAMPUS & FACULTY EVENTS
         events = [
             Event(
-                title="Faculty of Physical Sciences 100L Orientation",
-                date_time="3-4 Weeks After Resumption (10:00 AM)",
-                venue="Faculty of Physical Sciences Lecture Theatre (FPSLT)"
+                title="Freshmen Orientation Ceremony",
+                date_time="3-4 Weeks After Resumption (09:00 AM)",
+                venue="Ekpo Ref or the Respective Departments"
             ),
             Event(
                 title="UNN Official Matriculation Ceremony for Freshmen",
                 date_time="Date Announced by University Senate (09:00 AM)",
-                venue="Freedom Square & Faculty Quadrangle"
+                venue="Faculty of Physical Sciences Lecture Theatre (FPSLT)"
             ),
             Event(
                 title="100-Level Departmental Freshers Meetings",

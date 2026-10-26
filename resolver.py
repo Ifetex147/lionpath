@@ -171,7 +171,20 @@ def resolve_event_venue(text):
         return None, None
 
     clean = text.lower().strip()
-    clean_query = re.sub(r"\b(how do i get to|directions? to|where is|route to|path to|take me to|the|event|programme|ceremony|address)\b", "", clean).strip()
+
+    # Require an explicit event signal keyword unless the title matches directly
+    has_event_signal = bool(re.search(
+        r"\b(event|events|programme|programmes|ceremony|ceremonies|orientation|matriculation|matric|freshers\s+meeting|freshers\s+meetings|symposium|seminar|colloquium)\b",
+        clean
+    ))
+
+    clean_query = re.sub(
+        r"\b(where\s+(?:does|is|will|do|can\s+we)|takes?\s+place|hold|held|holding|"
+        r"how\s+(?:do\s+i|can\s+i|to)\s+(?:get\s+to|reach|attend|find|go\s+to)|"
+        r"directions?\s+(?:to)?|route\s+(?:to)?|the|event|programme|ceremony|address)\b",
+        "",
+        clean
+    ).strip()
     clean_query = re.sub(r"\s+", " ", clean_query)
 
     best_event = None
@@ -180,18 +193,21 @@ def resolve_event_venue(text):
     events = Event.query.all()
     for ev in events:
         title_lower = ev.title.lower()
-        if title_lower in clean or clean in title_lower or (clean_query and clean_query in title_lower):
+        if title_lower in clean or clean in title_lower:
             best_event = ev
             best_score = 100
             break
 
-        score = max(fuzz.token_set_ratio(clean, title_lower), fuzz.token_set_ratio(clean_query, title_lower))
-        if score > best_score:
-            best_score = score
-            best_event = ev
+        if has_event_signal:
+            score = max(fuzz.token_set_ratio(clean, title_lower), fuzz.token_set_ratio(clean_query, title_lower))
+            if score > best_score:
+                best_score = score
+                best_event = ev
 
     if best_event and best_score >= 60:
         venue_node = resolve_location(best_event.venue)
+        if not venue_node and "ekpo" in best_event.venue.lower():
+            venue_node = Node.query.filter(Node.formal_name.like("%Student Affairs%")).first()
         return best_event, venue_node
 
     return None, None

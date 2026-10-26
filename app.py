@@ -152,15 +152,24 @@ def handle_navigate(session_id, locations, clean_message):
             ctx["pending"] = "awaiting_source"
             ctx["destination"] = ev_venue
             ctx["last_location"] = ev_venue.formal_name
-            venue_display = f"**{ev.venue}** (near {ev_venue.formal_name})" if ev.venue.lower() not in ev_venue.formal_name.lower() else f"**{ev_venue.formal_name}**"
+            if "ekpo" in ev.venue.lower():
+                text_msg = (
+                    f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n"
+                    f"• **Ekpo Ref**: Head up the hill past the **Student Affairs Building** (beside the statue of a woman's face).\n"
+                    f"• **Departmental Sessions**: Held at your respective departmental lecture halls (NCSB, Carver, Abuja Building, Geology).\n\n"
+                    f"Where are you starting from, on your way to **{ev_venue.formal_name}**?"
+                )
+            else:
+                venue_display = f"**{ev_venue.formal_name}**" if ev.venue.lower() in ev_venue.formal_name.lower() or ev_venue.formal_name.lower() in ev.venue.lower() else f"**{ev.venue}** (at {ev_venue.formal_name})"
+                text_msg = f"🎉 **{ev.title}** takes place at {venue_display} ({ev.date_time}).\n\nWhere are you starting from, on your way there?"
             return {
-                "text": f"🎉 **{ev.title}** takes place at {venue_display} ({ev.date_time}).\n\nWhere are you starting from, on your way there?",
+                "text": text_msg,
                 "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
             }
         else:
             ctx["last_location"] = ev.venue
             return {
-                "text": f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n(Note: This venue is situated outside the immediate Faculty of Physical Sciences walking graph. To get there, head towards the central university area near Nnamdi Azikiwe Library / VC's Office)."
+                "text": f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n(Note: This venue is situated outside the immediate Faculty of Physical Sciences walking graph)."
             }
 
     # Standalone ambiguity check (e.g., user just asked "where is library")
