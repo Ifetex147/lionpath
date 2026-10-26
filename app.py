@@ -225,7 +225,36 @@ def handle_navigate(session_id, locations, clean_message):
         }
 
     if len(locations) == 0:
-        destination = resolve_target_venue(clean_message)
+        cleaned_dest = re.sub(
+            r"^(?:(?:campus\s+)?directions?\s+(?:to\s+)?|route\s+(?:to\s+)?|path\s+(?:to\s+)?|"
+            r"how\s+(?:do\s+i|can\s+i|to|goi|i)\s+(?:get\s+to|go\s+to|go|reach|find|locate)\s+(?:to\s+)?|"
+            r"where\s+(?:is|can\s+i\s+find|are)\s+(?:the\s+)?|"
+            r"take\s+me\s+to\s+|navigate\s+to\s+|lead\s+me\s+to\s+|way\s+to\s+)",
+            "",
+            clean_message
+        ).strip()
+
+        cand_ambig = check_location_ambiguity(cleaned_dest)
+        if cand_ambig == "AMBIGUOUS_LIBRARY":
+            ctx["pending"] = "awaiting_library_destination"
+            return {
+                "text": "Which library do you want directions to?\n"
+                        "• 🏛️ **Faculty of Physical Sciences Library** (say *'faculty'*)\n"
+                        "• 🏢 **Nnamdi Azikiwe Library (Main Library / NAL)** (say *'main'* or *'nal'*)",
+                "options": ["Faculty Library", "Main Library (NAL)"]
+            }
+        elif cand_ambig == "AMBIGUOUS_CANTEEN":
+            ctx["pending"] = "awaiting_canteen_destination"
+            return {
+                "text": "Which spot do you want directions to?\n"
+                        "• 🍲 **Faculty Science Canteen** (behind SLT)\n"
+                        "• 🍽️ **Franco Refectory** (main campus dining)",
+                "options": ["Faculty Science Canteen", "Franco Refectory"]
+            }
+
+        destination = resolve_target_venue(cleaned_dest) if cleaned_dest else None
+        if not destination:
+            destination = resolve_target_venue(clean_message)
         if destination:
             ctx["pending"] = "awaiting_source"
             ctx["destination"] = destination
@@ -407,7 +436,11 @@ def handle_message(message, session_id):
         contexts[session_id] = {"pending": None, "destination": None, "last_location": None}
     ctx = contexts[session_id]
 
-    clean_message = message.lower().strip()
+    clean_message = re.sub(r"[\U00010000-\U0010ffff]", "", message).strip()
+    clean_message = re.sub(r"^[^\w\s]+", "", clean_message).strip().lower()
+    clean_message = re.sub(r"\s+", " ", clean_message)
+    if not clean_message:
+        clean_message = message.lower().strip()
 
     # Physics theory vs practical disambiguation
     if ctx.get("pending") == "awaiting_physics_type":
@@ -645,10 +678,31 @@ def handle_message(message, session_id):
             "options": ["School Fees & Remita", "Faculty Clearance Requirements", "Hostel Allocation", "Library Card", "Medical Registration", "How is CGPA calculated?"]
         }
 
+    # Procedural orientation inquiries (hostel booking, ID card, fees, clearance, registration, CGPA)
+    orientation_action_pattern = (
+        r"\b("
+        r"how\s+(?:do\s+i|can\s+i|to|goi|i)\s+(?:get|complete|finish|apply|apply\s+for|obtain|pay|secure|register|open|boot)\s+(?:a\s+|an\s+|my\s+)?(hostel|bedspace|bed\s+space|accommodation|room|id\s+card|library\s+card|rrr|remita|fees?|receipt|school\s+fees?|clearance|registration|medicals?|wifi|clionet|admission)|"
+        r"hostel\s+(?:allocation|booting|application|steps?|process|portal|accommodation)|"
+        r"how\s+(?:is|to\s+calculate)\s+cgpa"
+        r")\b"
+    )
+    if re.search(orientation_action_pattern, clean_message):
+        return {"text": answer_orientation(clean_message)}
+
+    # Direct single-word chip match for registration / clearance / hostel / cgpa
+    if re.search(r"^\s*(registration|register|course\s+reg)\s*$", clean_message):
+        return {"text": answer_orientation("registration")}
+    if re.search(r"^\s*(hostel|accommodation|bedspace)\s*$", clean_message):
+        return {"text": answer_orientation("hostel")}
+    if re.search(r"^\s*(clearance\s+deadline|deadline)\s*$", clean_message):
+        return {"text": answer_orientation("clearance deadline")}
+    if re.search(r"^\s*(cgpa\s+scale|cgpa|grading)\s*$", clean_message):
+        return {"text": answer_orientation("cgpa")}
+
     # Navigation queries
     nav_pattern = (
         r"\b("
-        r"how\s+(?:do\s+i|can\s+i|to|goi|i)\s+(?:get|go|reach|find|locate|attend)|"
+        r"how\s+(?:do\s+i|can\s+i|to|goi|i)\s+(?:get\s+to|go\s+to|go|reach|find|locate|attend)|"
         r"how\s+goi\s+go|"
         r"go\s+(?:to|for)\s+(?:the\s+)?|"
         r"(?:campus\s+)?directions?|"
@@ -682,7 +736,7 @@ def handle_message(message, session_id):
         }
 
     # Lecture timetable queries
-    if re.search(r"\b(timetable|schedule|classes|lectures?|what time is|when is|when do we have)\b", clean_message) or re.search(r"\b(monday|tuesday|wednesday|thursday|friday|saturday)\b", clean_message) or re.search(r"\b(cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt)\s*(\d{3})?\b", clean_message):
+    if ((re.search(r"\b(timetable|schedule|classes|lectures?|what time is|when is|when do we have)\b", clean_message) and not re.search(r"\b(theatre|fpslt)\b", clean_message)) or re.search(r"\b(monday|tuesday|wednesday|thursday|friday|saturday)\b", clean_message) or re.search(r"\b(cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt)\s*(\d{3})\b", clean_message)):
         # Personal timetable inquiries
         personal_tt_match = re.search(r"\b(what classes? do (i|we) have|which classes? do (i|we) have|what are my classes|what lectures? do (i|we) have|my classes|my lectures|my timetable|my schedule|show (me )?my classes|what class(es)? do i have)\b", clean_message)
         if personal_tt_match:
@@ -742,6 +796,17 @@ def handle_message(message, session_id):
         if "@" in reply_text:
             ctx["last_location"] = reply_text.split("@")[-1].strip()
         return {"text": reply_text}
+
+    # Direct campus landmark clicks/queries (e.g. "Science Lecture Theatre (FPSLT)", "Faculty Science Canteen", "Franco Refectory", "UNN 2nd Gate")
+    if not re.search(r"\b(how\s+to|when|what|deadline|last\s+day|fee|fees|cost|pay|rrr|remita|requirements?|documents?|steps?|process)\b", clean_message):
+        direct_venue = resolve_location(clean_message) or resolve_target_venue(clean_message)
+        if direct_venue:
+            ctx["pending"] = "awaiting_source"
+            ctx["destination"] = direct_venue
+            return {
+                "text": f"Where are you starting from, on your way to **{direct_venue.formal_name}**?",
+                "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
+            }
 
     # Orientation and clearance FAQ queries
     if re.search(r"\b(cleara?nce|clerance|cgpa|gpa|grading|grade|fees?|remita|rrr|hostel|id card|library|wi-?fi|eduroam|medical|clinic|doctor|docket|exams?|malpractice|food|canteen|franco|dean|hod|officer|photocopy|print|laptop|lunch|eat|meals?)\b", clean_message):

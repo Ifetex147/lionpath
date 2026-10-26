@@ -21,7 +21,9 @@ def normalize_common_typos(text):
         r"\bregistraion\b": "registration",
         r"\bacceptence\b": "acceptance",
         r"\bmatribulation\b": "matriculation",
-        r"\bmatricultion\b": "matriculation"
+        r"\bmatricultion\b": "matriculation",
+        r"\baccomodation\b": "accommodation",
+        r"\bacomodation\b": "accommodation"
     }
     for pat, rep in typos.items():
         clean = re.sub(pat, rep, clean)

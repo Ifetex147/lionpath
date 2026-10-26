@@ -646,7 +646,7 @@ Faculty clearance for all 100-Level freshmen typically closes **4 to 6 weeks** f
             ),
             OrientationKB(
                 category="hostel",
-                question_pattern="hostel allocation,booting hostel,bed space,apply hostel,hostel payment,hostel requirements,porter,mattress,squatting,makintouch,pillowcases,bedspreads,supervisor fees",
+                question_pattern="hostel allocation,booting hostel,bed space,apply hostel,hostel payment,hostel requirements,accommodation,campus accommodation,how do i get a hostel,hostel accommodation,porter,mattress,squatting,makintouch,pillowcases,bedspreads,supervisor fees",
                 answer="""🏠 **Hostel Allocation ('Booting') & Check-In Guide:**
 
 

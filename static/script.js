@@ -284,6 +284,6 @@ window.addEventListener("DOMContentLoaded", () => {
         "Click a quick option below or type your question:",
         false,
         null,
-        ["🗺️ Directions to SLT", "🕒 What time is COS 101?", "📚 Clearance Deadline", "🎓 CGPA Calculation"]
+        ["Directions to SLT", "What time is COS 101?", "Clearance Deadline", "CGPA Calculation"]
     );
 });
