@@ -358,9 +358,19 @@ def handle_general_chat(clean_message, session_id=None):
         }
 
     # Greetings
-    if re.search(r"\b(hi|hello|hey|good morning|good afternoon|good evening|howdy|greetings)\b", msg):
+    if re.search(r"\b(hi|hello|hey|good\s+morning|good\s+afternoon|good\s+evening|good\s+day|howdy|greetings)\b", msg):
+        greeting_prefix = "Hello"
+        if "good morning" in msg:
+            greeting_prefix = "Good morning"
+        elif "good afternoon" in msg:
+            greeting_prefix = "Good afternoon"
+        elif "good evening" in msg:
+            greeting_prefix = "Good evening"
+        elif "good day" in msg:
+            greeting_prefix = "Good day"
+
         return {
-            "text": "Hello! I'm **LionPath**, your campus assistant for the Faculty of Physical Sciences, UNN.\n\n"
+            "text": f"{greeting_prefix}! I'm **LionPath**, your campus assistant for the Faculty of Physical Sciences, UNN.\n\n"
                     "Here are things you can ask me:\n"
                     "• 🗺️ **Directions**: *'How do I get to Science Lecture Theatre from CS?'*\n"
                     "• 🕒 **Timetables**: *'What time is COS 101?'* or *'Classes on Monday'*\n"
@@ -412,7 +422,7 @@ def handle_general_chat(clean_message, session_id=None):
         }
 
     # Conversational acknowledgments
-    if re.search(r"^(ok|okay|k|alright|all right|got it|understood|noted|cool|sure|fine|great|nice|perfect|good|awesome|sounds good|yes|yeah|yep|no|nope|no problem|no worries)\b", msg):
+    if re.search(r"^(ok|okay|k|alright|all right|got it|understood|noted|cool|sure|fine|great|nice|perfect|good(?!\s+(?:morning|afternoon|evening|day))|awesome|sounds good|yes|yeah|yep|no problem|no worries)\b", msg):
         return {
             "text": "Glad to help! 😊 Let me know if you need any other directions, lecture schedules, or campus info."
         }
@@ -681,8 +691,12 @@ def handle_message(message, session_id):
             return {"text": f"I couldn't find '{message}' as a starting point on campus. What is the nearest building, hostel, or gate to start from?"}
 
     # Keyword routing
+    # Greetings
+    if re.search(r"^\s*(hi|hello|hey|good\s+morning|good\s+afternoon|good\s+evening|good\s+day|howdy|greetings)\b", clean_message):
+        return handle_general_chat(clean_message, session_id)
+
     # Acknowledgments
-    if re.search(r"^(ok|okay|k|alright|all right|got it|understood|noted|cool|sure|fine|great|nice|perfect|good|awesome|sounds good|yes|yeah|yep|no|nope|no problem|no worries)\b", clean_message):
+    if re.search(r"^(ok|okay|k|alright|all right|got it|understood|noted|cool|sure|fine|great|nice|perfect|good(?!\s+(?:morning|afternoon|evening|day))|awesome|sounds good|yes|yeah|yep|no problem|no worries)\b", clean_message):
         return {
             "text": "Glad to help! 😊 Let me know if you need any other directions, lecture schedules, or campus info."
         }
