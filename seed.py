@@ -30,7 +30,7 @@ def seed_database():
             ),
             "na_lib": Node(
                 formal_name="Nnamdi Azikiwe Library (NAL)",
-                informal_names="library,nnamdi azikiwe library,nal,blue building,blue big building,main library,central library,university library,cbt thumbprint centre",
+                informal_names="library,nnamdi azikiwe library,nal,blue building,blue big building,main library,central library,university library,cbt thumbprint centre,freedom square,freedom square & faculty quadrangle,faculty quadrangle",
                 category="library",
                 description="Huge blue building next to Faculty of Pharmacy and opposite VC's Office; Central University Library where students register for library cards (₦500).",
                 photo_path="nnamdi_azikiwke_library.jpeg"

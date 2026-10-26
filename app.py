@@ -151,13 +151,16 @@ def handle_navigate(session_id, locations, clean_message):
         if ev_venue:
             ctx["pending"] = "awaiting_source"
             ctx["destination"] = ev_venue
+            ctx["last_location"] = ev_venue.formal_name
+            venue_display = f"**{ev.venue}** (near {ev_venue.formal_name})" if ev.venue.lower() not in ev_venue.formal_name.lower() else f"**{ev_venue.formal_name}**"
             return {
-                "text": f"🎉 **{ev.title}** takes place at **{ev_venue.formal_name}** ({ev.date_time}).\n\nWhere are you starting from, on your way there?",
+                "text": f"🎉 **{ev.title}** takes place at {venue_display} ({ev.date_time}).\n\nWhere are you starting from, on your way there?",
                 "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
             }
         else:
+            ctx["last_location"] = ev.venue
             return {
-                "text": f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n(Note: This venue is situated outside the immediate Faculty of Physical Sciences walking graph)."
+                "text": f"🎉 **{ev.title}** takes place at **{ev.venue}** ({ev.date_time}).\n\n(Note: This venue is situated outside the immediate Faculty of Physical Sciences walking graph. To get there, head towards the central university area near Nnamdi Azikiwe Library / VC's Office)."
             }
 
     # Standalone ambiguity check (e.g., user just asked "where is library")
@@ -181,7 +184,14 @@ def handle_navigate(session_id, locations, clean_message):
 
     # Contextual memory
     if len(locations) == 0 and re.search(r"\b(there|it|the place|that place|this place)\b", clean_message):
-        if ctx.get("last_location"):
+        if ctx.get("destination"):
+            target_dest = ctx["destination"]
+            ctx["pending"] = "awaiting_source"
+            return {
+                "text": f"Where are you starting from, on your way to **{target_dest.formal_name}**?",
+                "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
+            }
+        elif ctx.get("last_location"):
             locations.append(ctx["last_location"])
         else:
             return {"text": "I'm not exactly sure which place you mean. Could you name the specific building?"}
@@ -621,8 +631,17 @@ def handle_message(message, session_id):
                 "options": ["Faculty Science Canteen", "Franco Refectory"]
             }
         
+        # If user repeats inquiry about getting there without providing a source
+        if re.search(r"\b(how\s+(?:do\s+i|to|can\s+i)\s+(?:get|reach|go)\s+there|give\s+directions|directions?\s+(?:to\s+get\s+there|please)?|take\s+me\s+there|how\s+do\s+i\s+get|take\s+me)\b", clean_message) or re.search(r"^\s*(there|it)\s*$", clean_message):
+            dest_name = ctx["destination"].formal_name if ctx.get("destination") else "your destination"
+            return {
+                "text": f"To guide you to **{dest_name}**, where are you currently starting from on campus?",
+                "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
+            }
+
         # Check if input matches a valid campus landmark
-        source = resolve_location(clean_message)
+        clean_src = re.sub(r"^(from|starting\s+from|i\s+am\s+at|am\s+at|at)\s+", "", clean_message).strip()
+        source = resolve_location(clean_src) or resolve_location(clean_message)
         if source:
             return finish_route(session_id, source, ctx["destination"])
 
