@@ -470,8 +470,25 @@ def handle_message(message, session_id):
     clean_message = re.sub(r"\s+", " ", clean_message)
     if not clean_message:
         clean_message = message.lower().strip()
-    clean_message = re.sub(r"doi", "do i", clean_message)
-    clean_message = re.sub(r"dowe", "do we", clean_message)
+    clean_message = re.sub(r"\bdoi\b", "do i", clean_message)
+    clean_message = re.sub(r"\bdowe\b", "do we", clean_message)
+
+    topic_switch_pattern = (
+        r"\b("
+        r"what|how|who|when|where|why|tell|is\s+there|can\s+you|hi|hello|hey|help|advice|"
+        r"directions?|route|from|to|path|navigate|wayfinding|"
+        r"orientation|matriculation|matric|freshers?|event|events|seminars?|symposium|"
+        r"cgpa|grade|grading|gpa|fees?|charges?|remita|rrr|receipt|"
+        r"card|cards|id\s+card|library\s+card|"
+        r"timetables?|schedules?|class(?:es)?|lectures?|today|tomorrow|"
+        r"cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt|\d{3}|"
+        r"clearance|register|registration|admission|acceptance|"
+        r"hostel|hostels|bedspace|accommodation|room|porter|"
+        r"medicals?|clinic|doctor|health\s+centre|"
+        r"wifi|wi-fi|clionet|internet|"
+        r"cancel|stop|nevermind|back|reset|no"
+        r")\b"
+    )
 
     # Physics theory vs practical disambiguation
     if ctx.get("pending") == "awaiting_physics_type":
@@ -611,17 +628,24 @@ def handle_message(message, session_id):
             }
 
     if ctx.get("pending") == "awaiting_user_name":
-        if not re.search(r"\b(what|how|why|when|where|who|cancel|no|stop|help)\b", clean_message):
-            clean_name = re.sub(r"^(my name is|i am|call me)\s+", "", clean_message, flags=re.IGNORECASE).strip()
-            name = clean_name.split()[0].capitalize()
-            ctx["user_name"] = name
+        is_topic_switch = bool(re.search(topic_switch_pattern, clean_message)) or bool(resolve_target_venue(clean_message) or resolve_event_venue(clean_message)[0])
+        words = clean_message.strip().split()
+        if is_topic_switch or len(words) > 3:
             ctx["pending"] = None
-            return {
-                "text": f"Nice to meet you, **{name}**! 👋 I am LionPath, your campus guide for the Faculty of Physical Sciences.\n\nWhat would you like to know or find on campus?",
-                "options": ["Campus Directions", "Lecture Schedules", "Orientation FAQs", "How is CGPA calculated?"]
-            }
+            # Drop down to process as a fresh query or navigation command!
         else:
-            ctx["pending"] = None
+            clean_name = re.sub(r"^(my name is|i am called|i am|call me|it'?s)\s+", "", clean_message, flags=re.IGNORECASE).strip()
+            name_candidates = [w for w in clean_name.split() if w.isalpha()]
+            if name_candidates and not re.search(r"\b(directions?|route|path|hostel|clearance|timetable|fees|unn)\b", clean_name):
+                name = name_candidates[0].capitalize()
+                ctx["user_name"] = name
+                ctx["pending"] = None
+                return {
+                    "text": f"Nice to meet you, **{name}**! 👋 I am LionPath, your campus guide for the Faculty of Physical Sciences.\n\nWhat would you like to know or find on campus?",
+                    "options": ["Campus Directions", "Lecture Schedules", "Orientation FAQs", "How is CGPA calculated?"]
+                }
+            else:
+                ctx["pending"] = None
 
     if ctx.get("pending") == "awaiting_canteen_destination_direct":
         target = resolve_disambiguated_location(clean_message, "AMBIGUOUS_CANTEEN")
