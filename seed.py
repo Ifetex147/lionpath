@@ -11,7 +11,8 @@ Populates authentic:
 """
 
 from app import app
-from models import db, Node, Edge, OrientationKB, Timetable, Event
+from models import db, Node, Edge, OrientationKB, Timetable, Event, Admin
+from werkzeug.security import generate_password_hash
 
 def seed_database():
     with app.app_context():
@@ -842,6 +843,16 @@ Faculty clearance for all 100-Level freshmen typically closes **4 to 6 weeks** f
             db.session.add(entry)
         db.session.commit()
         print(f"Added {len(timetable_raw)} official departmental timetable rows.")
+
+        # 6. SYSTEM ADMINISTRATOR
+        default_admin = Admin(
+            username="admin",
+            password_hash=generate_password_hash("lionpath2026"),
+            full_name="System Administrator"
+        )
+        db.session.add(default_admin)
+        db.session.commit()
+        print("Created default admin record (username: admin).")
 
         print("Database seeding completed successfully.")
 

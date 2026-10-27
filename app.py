@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 import spacy
 import re
-from models import db, Node, Edge, OrientationKB, Timetable, Event
+from models import db, Node, Edge, OrientationKB, Timetable, Event, Admin
 from navigation import get_directions
 from resolver import resolve_location, check_location_ambiguity, resolve_disambiguated_location, resolve_event_venue, resolve_course_venue, resolve_target_venue
 from orientation import answer_orientation
@@ -1028,7 +1028,17 @@ def admin_login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
 
-        if username == ADMIN_USERNAME and check_password_hash(ADMIN_PASSWORD_HASH, password):
+        admin_record = Admin.query.filter_by(username=username).first()
+        is_authenticated = False
+
+        if admin_record and check_password_hash(admin_record.password_hash, password):
+            is_authenticated = True
+            session["admin_name"] = admin_record.full_name
+        elif username == ADMIN_USERNAME and check_password_hash(ADMIN_PASSWORD_HASH, password):
+            is_authenticated = True
+            session["admin_name"] = "System Administrator"
+
+        if is_authenticated:
             session["is_admin"] = True
             flash("Logged in successfully as Administrator.", "success")
             next_url = request.args.get("next")
