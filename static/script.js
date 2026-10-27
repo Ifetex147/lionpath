@@ -183,6 +183,21 @@ function addMessage(text, isUser, imageUrl = null, options = [], routeData = nul
         div.appendChild(chipsContainer);
     }
 
+    // Attach "View Route on Campus Map" button if route data is present
+    if (routeData && routeData.route_nodes && routeData.route_nodes.length > 1) {
+        const mapBtnDiv = document.createElement("div");
+        mapBtnDiv.className = "mt-3 pt-1";
+        
+        const mapBtn = document.createElement("button");
+        mapBtn.className = "btn btn-sm btn-success rounded-pill fw-semibold shadow-sm px-3 py-2 d-inline-flex align-items-center gap-2";
+        mapBtn.innerHTML = '<span>🗺️</span> <span>View Animated Route on Campus Map</span>';
+        mapBtn.onclick = () => {
+            openCampusMap(routeData);
+        };
+        mapBtnDiv.appendChild(mapBtn);
+        div.appendChild(mapBtnDiv);
+    }
+
     wrapper.appendChild(div);
     chatBox.appendChild(wrapper);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -287,3 +302,353 @@ window.addEventListener("DOMContentLoaded", () => {
         ["Directions to SLT", "What time is COS 101?", "Clearance Deadline", "CGPA Calculation"]
     );
 });
+
+
+// ==========================================
+// 🗺️ 2D INTERACTIVE CAMPUS MAP (ALL 27 NODES)
+// ==========================================
+
+const CAMPUS_NODES = {
+    1:  { id: 1,  x: 440, y: 300, name: "Carver Building", fullName: "Carver Building (Computer Science)", category: "Academic Building", icon: "🏛️", color: "#0d5c2e", photo: "carver_building.jpeg", desc: "Three-storey building housing the Department of Computer Science and Faculty administrative offices." },
+    2:  { id: 2,  x: 730, y: 450, name: "NAL Library", fullName: "Nnamdi Azikiwe Library (NAL)", category: "Library", icon: "📚", color: "#1e40af", photo: "nnamdi_azikiwke_library.jpeg", desc: "Iconic flagship central university library of UNN with extensive digital archives." },
+    3:  { id: 3,  x: 470, y: 470, name: "Student Affairs", fullName: "Student Affairs Building", category: "Administrative", icon: "🦁", color: "#065f46", photo: "student_affairs.jpeg", desc: "Central student affairs division; walkway leads uphill to Ekpo Ref." },
+    4:  { id: 4,  x: 620, y: 320, name: "Abuja Building", fullName: "Abuja Building (Prof. Ezeilo Building)", category: "Academic Building", icon: "🏢", color: "#0284c7", photo: "abuja_building.jpeg", desc: "Multi-storey building housing Mathematics and Statistics departments and lecture theatres." },
+    5:  { id: 5,  x: 350, y: 220, name: "SLT Dept", fullName: "Science Laboratory Technology (SLT) Department", category: "Department", icon: "🔬", color: "#0891b2", photo: "slt_department.jpeg", desc: "Department of Science Laboratory Technology with specialised practical laboratories." },
+    6:  { id: 6,  x: 340, y: 350, name: "New CS (NCSB)", fullName: "New Computer Science Building (NCSB)", category: "Academic Building", icon: "💻", color: "#2563eb", photo: "computer_science.jpeg", desc: "Modern lecture hall and computer lab facility for Computer Science students." },
+    7:  { id: 7,  x: 230, y: 160, name: "Bello Hall", fullName: "Bello Hall (Hostel)", category: "Student Hostel", icon: "🏠", color: "#d97706", photo: "bello_hostel.jpeg", desc: "Historic male student residence hall situated in the western residential quadrangle." },
+    8:  { id: 8,  x: 610, y: 450, name: "VC's Office", fullName: "Vice-Chancellor's Office (VC's Office)", category: "Administrative", icon: "🏛️", color: "#4338ca", photo: "vc_building_front.jpeg", desc: "White central administration building facing NAL housing top university principal officers." },
+    9:  { id: 9,  x: 910, y: 380, name: "Odim Gate", fullName: "Odim Campus Gate", category: "Perimeter Gate", icon: "🚪", color: "#7c3aed", photo: "odim_gate.jpeg", desc: "Eastern campus gate connecting UNN to Odim off-campus student residential lodges." },
+    10: { id: 10, x: 520, y: 240, name: "FPSLT (SLT)", fullName: "Faculty of Physical Sciences Lecture Theatre (FPSLT)", category: "Lecture Theatre", icon: "🎭", color: "#db2777", photo: "fpslt.jpeg", desc: "Main faculty lecture theatre hosting 100-level core lectures and official freshmen matriculation." },
+    11: { id: 11, x: 770, y: 210, name: "Geology Dept", fullName: "Geology Department Building", category: "Department", icon: "🪨", color: "#65a30d", photo: "geology_department.jpeg", desc: "Geology department with museum collections and outdoor mineral/rock specimen displays." },
+    12: { id: 12, x: 730, y: 550, name: "Bookshop", fullName: "University Bookshop", category: "Campus Facility", icon: "📖", color: "#ca8a04", photo: "bookshop.jpeg", desc: "Official university academic bookstore stocking textbooks, stationery, and publications." },
+    13: { id: 13, x: 840, y: 520, name: "Medical Centre", fullName: "University Medical Centre", category: "Health Facility", icon: "🏥", color: "#e11d48", photo: "medical_center.jpeg", desc: "Comprehensive campus health centre providing 24/7 medical treatment and registration." },
+    14: { id: 14, x: 330, y: 570, name: "GS Building", fullName: "General Studies Building (GS Building)", category: "Academic Building", icon: "🏛️", color: "#16a34a", photo: "gs_building.jpeg", desc: "Large green administrative building for General Studies courses (GSP 101, GSP 111)." },
+    15: { id: 15, x: 840, y: 720, name: "UNN 1st Gate", fullName: "UNN 1st Gate (Main Gate)", category: "Main Entrance", icon: "🚪", color: "#047857", photo: "main_gate.jpeg", desc: "The grand ceremonial main entrance gate to the University of Nigeria from Nsukka town." },
+    16: { id: 16, x: 160, y: 720, name: "UNN 2nd Gate", fullName: "UNN 2nd Gate (Abuja / Franco Gate)", category: "Secondary Gate", icon: "🚪", color: "#0284c7", photo: "abuja_gate.jpeg", desc: "Secondary campus gate near Franco refectory connecting commuters from Green House area." },
+    17: { id: 17, x: 100, y: 80,  name: "Odenigwe Gate", fullName: "Odenigwe Campus Gate", category: "Perimeter Gate", icon: "🚪", color: "#7c3aed", photo: "odenigwe_gate.jpeg", desc: "Northern campus gate serving as primary transit corridor for Odenigwe lodge residents." },
+    18: { id: 18, x: 120, y: 220, name: "Aja-Nwachukwu", fullName: "Aja-Nwachukwu Hall (Hostel)", category: "Student Hostel", icon: "🏠", color: "#ea580c", photo: "aja_nwachukwu_hostel.jpeg", desc: "Undergraduate student hostel in the western campus residential sector." },
+    19: { id: 19, x: 120, y: 320, name: "Akintola Hall", fullName: "Akintola Hall (Hostel)", category: "Student Hostel", icon: "🏠", color: "#d97706", photo: "akintola_hostel.jpeg", desc: "Multi-storey student accommodation located near Aja-Nwachukwu Hall." },
+    20: { id: 20, x: 220, y: 280, name: "Eyo-Ita Hall", fullName: "Eyo-Ita Hall (Hostel)", category: "Student Hostel", icon: "🏠", color: "#b45309", photo: "eyo_ita_hostel.jpeg", desc: "Undergraduate hostel facility opposite Bello Hall in the student living corridor." },
+    21: { id: 21, x: 470, y: 560, name: "Admission Block", fullName: "Admission Office (Admission Block)", category: "Administrative", icon: "📋", color: "#4f46e5", photo: "admission_block.jpeg", desc: "Administrative office handling undergraduate admissions, JAMB regularization, and files." },
+    22: { id: 22, x: 590, y: 550, name: "ICT Centre", fullName: "University ICT Centre", category: "Technology", icon: "🖥️", color: "#2563eb", photo: "ict.jpeg", desc: "Campus computing center managing UNN student portal, Lionet Wi-Fi, and CBT exams." },
+    23: { id: 23, x: 430, y: 170, name: "Faculty Library", fullName: "Faculty of Physical Sciences Library", category: "Library", icon: "📖", color: "#0d5c2e", photo: "faculty_library.jpeg", desc: "Dedicated faculty science library holding subject archives and research reading spaces." },
+    24: { id: 24, x: 330, y: 440, name: "Science Canteen", fullName: "Faculty Science Canteen & Franco Refectory", category: "Dining", icon: "🍲", color: "#dc2626", photo: "canteen.jpeg", desc: "Popular student dining hub serving hot meals, pastries, drinks, and snacks." },
+    25: { id: 25, x: 640, y: 220, name: "Maths & Stats", fullName: "Mathematics and Statistics Building", category: "Department", icon: "📐", color: "#4338ca", photo: "mathematics.jpeg", desc: "Departmental lecture rooms, computer statistics laboratories, and lecturer offices." },
+    26: { id: 26, x: 520, y: 130, name: "Physics & Astro", fullName: "Physics and Astronomy Building", category: "Department", icon: "🔭", color: "#8b5cf6", photo: "physics.jpeg", desc: "Prominent landmark with astronomical telescope dome and experimental laboratories." },
+    27: { id: 27, x: 680, y: 130, name: "Chemistry Dept", fullName: "Chemistry Department Building", category: "Department", icon: "🧪", color: "#0891b2", photo: "chemistry.jpeg", desc: "Chemistry laboratories for organic, inorganic, and physical practical science sessions." }
+};
+
+const CAMPUS_EDGES = [
+    [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 18], [1, 21], [1, 23], [1, 26],
+    [2, 3], [2, 5], [2, 7], [2, 8], [2, 12], [2, 14], [2, 18], [2, 20], [2, 21], [2, 22],
+    [3, 7], [3, 8], [3, 12], [3, 13], [3, 18],
+    [4, 6], [4, 9], [4, 10], [4, 11], [4, 22], [4, 25],
+    [5, 10], [5, 21], [5, 22], [5, 24],
+    [6, 9], [6, 10], [6, 11], [6, 22],
+    [7, 8], [7, 20],
+    [8, 12], [8, 17], [8, 20],
+    [9, 22],
+    [10, 22],
+    [11, 27],
+    [12, 14],
+    [13, 15], [13, 17],
+    [14, 15], [14, 17],
+    [16, 22],
+    [18, 19],
+    [21, 22]
+];
+
+let mapInitialized = false;
+let mapModalInstance = null;
+let currentViewBox = { x: 0, y: 0, w: 1000, h: 800 };
+
+function initCampusMap() {
+    if (mapInitialized) return;
+
+    const svg = document.getElementById("campusSvgMap");
+    const edgesGroup = document.getElementById("mapEdgesGroup");
+    const nodesGroup = document.getElementById("mapNodesGroup");
+
+    if (!svg || !edgesGroup || !nodesGroup) return;
+
+    // 1. Render all 55 walkway connections
+    edgesGroup.innerHTML = "";
+    CAMPUS_EDGES.forEach(([sId, dId]) => {
+        const sNode = CAMPUS_NODES[sId];
+        const dNode = CAMPUS_NODES[dId];
+        if (!sNode || !dNode) return;
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", sNode.x);
+        line.setAttribute("y1", sNode.y);
+        line.setAttribute("x2", dNode.x);
+        line.setAttribute("y2", dNode.y);
+        line.setAttribute("class", "map-edge");
+        edgesGroup.appendChild(line);
+    });
+
+    // 2. Render all 27 Landmark Nodes as clean white pill cards
+    nodesGroup.innerHTML = "";
+    Object.values(CAMPUS_NODES).forEach(node => {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "map-node-group");
+        g.setAttribute("id", `node-group-${node.id}`);
+        g.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+        g.onclick = () => selectLandmarkNode(node.id);
+
+        // White card background with subtle accent border
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("class", "node-card-bg");
+        rect.setAttribute("x", "-48");
+        rect.setAttribute("y", "-16");
+        rect.setAttribute("width", "96");
+        rect.setAttribute("height", "32");
+        rect.setAttribute("rx", "16");
+        rect.setAttribute("fill", "#ffffff");
+        rect.setAttribute("stroke", node.color);
+        rect.setAttribute("stroke-width", "1.8");
+        rect.setAttribute("filter", "url(#nodeShadow)");
+
+        // Icon circle
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", "-30");
+        circle.setAttribute("cy", "0");
+        circle.setAttribute("r", "11");
+        circle.setAttribute("fill", node.color);
+        circle.setAttribute("fill-opacity", "0.15");
+
+        // Icon Emoji
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        icon.setAttribute("x", "-30");
+        icon.setAttribute("y", "4");
+        icon.setAttribute("font-size", "11");
+        icon.setAttribute("text-anchor", "middle");
+        icon.textContent = node.icon;
+
+        // Label text
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("class", "node-label");
+        label.setAttribute("x", "10");
+        label.setAttribute("y", "3.5");
+        label.setAttribute("font-size", "9.5");
+        label.setAttribute("font-weight", "700");
+        label.setAttribute("fill", "#0f172a");
+        label.setAttribute("text-anchor", "middle");
+        label.textContent = node.name;
+
+        g.appendChild(rect);
+        g.appendChild(circle);
+        g.appendChild(icon);
+        g.appendChild(label);
+        nodesGroup.appendChild(g);
+    });
+
+    mapInitialized = true;
+}
+
+function openCampusMap(routeData = null) {
+    initCampusMap();
+
+    const modalEl = document.getElementById("campusMapModal");
+    if (!modalEl) return;
+
+    if (!mapModalInstance) {
+        mapModalInstance = new bootstrap.Modal(modalEl);
+    }
+    mapModalInstance.show();
+
+    if (routeData && routeData.route_nodes && routeData.route_nodes.length > 1) {
+        highlightRouteOnMap(routeData);
+    } else {
+        clearMapHighlight();
+    }
+}
+
+function highlightRouteOnMap(routeData) {
+    const activeRouteGroup = document.getElementById("mapActiveRouteGroup");
+    const pinsGroup = document.getElementById("mapPinsGroup");
+    const banner = document.getElementById("mapRouteBanner");
+    const titleEl = document.getElementById("bannerRouteTitle");
+    const statsEl = document.getElementById("bannerRouteStats");
+
+    if (!activeRouteGroup || !pinsGroup) return;
+
+    clearMapHighlight();
+
+    // 1. Show Route Alert Banner
+    if (banner && titleEl && statsEl) {
+        titleEl.textContent = `Route: ${routeData.source_name || 'Start'} ➔ ${routeData.destination_name || 'Destination'}`;
+        statsEl.textContent = `Distance: ~${routeData.total_distance || 0} meters • Est. Walk Time: ~${routeData.est_mins || 1} min${(routeData.est_mins || 1) > 1 ? 's' : ''}`;
+        banner.style.display = "flex";
+    }
+
+    const nodeIds = routeData.route_nodes;
+
+    // 2. Draw glowing animated emerald lines along traversed edges
+    for (let i = 0; i < nodeIds.length - 1; i++) {
+        const u = CAMPUS_NODES[nodeIds[i]];
+        const v = CAMPUS_NODES[nodeIds[i + 1]];
+        if (!u || !v) continue;
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", u.x);
+        line.setAttribute("y1", u.y);
+        line.setAttribute("x2", v.x);
+        line.setAttribute("y2", v.y);
+        line.setAttribute("class", "route-active-line");
+        activeRouteGroup.appendChild(line);
+    }
+
+    // 3. Highlight Start Node with pulsing green halo & START badge
+    const startNode = CAMPUS_NODES[nodeIds[0]];
+    if (startNode) {
+        const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        pulse.setAttribute("cx", startNode.x);
+        pulse.setAttribute("cy", startNode.y);
+        pulse.setAttribute("r", "24");
+        pulse.setAttribute("fill", "none");
+        pulse.setAttribute("stroke", "#10b981");
+        pulse.setAttribute("stroke-width", "3");
+        pulse.setAttribute("class", "node-pulse-start");
+        pinsGroup.appendChild(pulse);
+
+        const startBadge = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        startBadge.setAttribute("transform", `translate(${startNode.x}, ${startNode.y - 24})`);
+        startBadge.innerHTML = `
+            <rect x="-30" y="-13" width="60" height="17" rx="8" fill="#10b981" filter="url(#nodeShadow)"/>
+            <text x="0" y="-1" fill="#ffffff" font-size="8.5" font-weight="800" text-anchor="middle">🟢 START</text>
+        `;
+        pinsGroup.appendChild(startBadge);
+
+        const g = document.getElementById(`node-group-${startNode.id}`);
+        if (g) {
+            const rect = g.querySelector(".node-card-bg");
+            if (rect) {
+                rect.setAttribute("fill", "#ecfdf5");
+                rect.setAttribute("stroke", "#10b981");
+                rect.setAttribute("stroke-width", "2.5");
+            }
+        }
+    }
+
+    // 4. Highlight Destination Node with pulsing red halo & DESTINATION badge
+    const destNode = CAMPUS_NODES[nodeIds[nodeIds.length - 1]];
+    if (destNode) {
+        const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        pulse.setAttribute("cx", destNode.x);
+        pulse.setAttribute("cy", destNode.y);
+        pulse.setAttribute("r", "26");
+        pulse.setAttribute("fill", "none");
+        pulse.setAttribute("stroke", "#ef4444");
+        pulse.setAttribute("stroke-width", "3");
+        pulse.setAttribute("class", "node-pulse-dest");
+        pinsGroup.appendChild(pulse);
+
+        const destBadge = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        destBadge.setAttribute("transform", `translate(${destNode.x}, ${destNode.y - 24})`);
+        destBadge.innerHTML = `
+            <rect x="-44" y="-13" width="88" height="17" rx="8" fill="#dc2626" filter="url(#nodeShadow)"/>
+            <text x="0" y="-1" fill="#ffffff" font-size="8.5" font-weight="800" text-anchor="middle">🏁 DESTINATION</text>
+        `;
+        pinsGroup.appendChild(destBadge);
+
+        const g = document.getElementById(`node-group-${destNode.id}`);
+        if (g) {
+            const rect = g.querySelector(".node-card-bg");
+            if (rect) {
+                rect.setAttribute("fill", "#fee2e2");
+                rect.setAttribute("stroke", "#dc2626");
+                rect.setAttribute("stroke-width", "2.5");
+            }
+        }
+    }
+
+    // 5. Highlight intermediate nodes along path
+    for (let i = 1; i < nodeIds.length - 1; i++) {
+        const interNode = CAMPUS_NODES[nodeIds[i]];
+        if (!interNode) continue;
+        const g = document.getElementById(`node-group-${interNode.id}`);
+        if (g) {
+            const rect = g.querySelector(".node-card-bg");
+            if (rect) {
+                rect.setAttribute("fill", "#f0fdf4");
+                rect.setAttribute("stroke", "#059669");
+                rect.setAttribute("stroke-width", "2.2");
+            }
+        }
+    }
+}
+
+function clearMapHighlight() {
+    const activeRouteGroup = document.getElementById("mapActiveRouteGroup");
+    const pinsGroup = document.getElementById("mapPinsGroup");
+    const banner = document.getElementById("mapRouteBanner");
+
+    if (activeRouteGroup) activeRouteGroup.innerHTML = "";
+    if (pinsGroup) pinsGroup.innerHTML = "";
+    if (banner) banner.style.display = "none";
+
+    // Reset all node cards to initial clean styling
+    Object.values(CAMPUS_NODES).forEach(node => {
+        const g = document.getElementById(`node-group-${node.id}`);
+        if (g) {
+            const rect = g.querySelector(".node-card-bg");
+            if (rect) {
+                rect.setAttribute("fill", "#ffffff");
+                rect.setAttribute("stroke", node.color);
+                rect.setAttribute("stroke-width", "1.8");
+            }
+        }
+    });
+}
+
+function selectLandmarkNode(nodeId) {
+    const node = CAMPUS_NODES[nodeId];
+    if (!node) return;
+
+    const card = document.getElementById("landmarkInfoCard");
+    const photo = document.getElementById("landmarkCardPhoto");
+    const nameEl = document.getElementById("landmarkCardName");
+    const catEl = document.getElementById("landmarkCardCategory");
+    const descEl = document.getElementById("landmarkCardDesc");
+    const btnNav = document.getElementById("btnNavToHere");
+
+    if (!card || !nameEl || !descEl || !btnNav) return;
+
+    if (photo) photo.src = `/static/images/${node.photo}`;
+    nameEl.textContent = node.fullName;
+    if (catEl) catEl.textContent = node.category;
+    descEl.textContent = node.desc;
+
+    btnNav.onclick = () => {
+        if (mapModalInstance) mapModalInstance.hide();
+        sendMessage(`Directions to ${node.fullName}`);
+    };
+
+    card.style.display = "block";
+}
+
+function zoomMap(factor) {
+    const svg = document.getElementById("campusSvgMap");
+    if (!svg) return;
+
+    const newW = currentViewBox.w / factor;
+    const newH = currentViewBox.h / factor;
+    const dx = (currentViewBox.w - newW) / 2;
+    const dy = (currentViewBox.h - newH) / 2;
+
+    currentViewBox.x += dx;
+    currentViewBox.y += dy;
+    currentViewBox.w = newW;
+    currentViewBox.h = newH;
+
+    svg.setAttribute("viewBox", `${currentViewBox.x} ${currentViewBox.y} ${currentViewBox.w} ${currentViewBox.h}`);
+}
+
+function resetMapZoom() {
+    const svg = document.getElementById("campusSvgMap");
+    if (!svg) return;
+
+    currentViewBox = { x: 0, y: 0, w: 1000, h: 800 };
+    svg.setAttribute("viewBox", "0 0 1000 800");
+}

@@ -164,24 +164,25 @@ body {
 
 .map-edge {
     stroke: #cbd5e1;
-    stroke-width: 4;
+    stroke-width: 2.5;
+    stroke-dasharray: 6, 5;
     stroke-linecap: round;
     transition: stroke 0.3s ease;
 }
 
 .map-node-group {
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.map-node-group:hover circle.node-circle {
-    stroke-width: 4;
+.map-node-group:hover .node-card-bg {
+    stroke-width: 2.5;
     stroke: #0d5c2e;
-    filter: drop-shadow(0 0 6px rgba(13,92,46,0.35));
+    filter: drop-shadow(0 4px 8px rgba(13,92,46,0.25));
 }
 
 .map-node-group:hover text.node-label {
-    font-weight: bold;
+    font-weight: 800;
     fill: #0d5c2e;
 }
 
