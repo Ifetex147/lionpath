@@ -330,7 +330,7 @@ const CAMPUS_NODES = {
     12: { id: 12, x: 690, y: 560, name: "Bookshop", fullName: "University Bookshop", category: "Campus Facility", icon: "📖", color: "#ca8a04", photo: "bookshop.jpeg", desc: "Official university academic bookstore stocking textbooks, stationery, and publications." },
     21: { id: 21, x: 390, y: 560, name: "Admission Block", fullName: "Admission Office (Admission Block)", category: "Administrative", icon: "📋", color: "#4f46e5", photo: "admission_block.jpeg", desc: "Administrative office handling undergraduate admissions, JAMB regularization, and files." },
     14: { id: 14, x: 310, y: 630, name: "GS Building", fullName: "General Studies Building (GS Building)", category: "Academic Building", icon: "🏛️", color: "#16a34a", photo: "gs_building.jpeg", desc: "Large green administrative building for General Studies courses (GSP 101, GSP 111)." },
-    13: { id: 13, x: 840, y: 510, name: "Medical Centre", fullName: "University Medical Centre", category: "Health Facility", icon: "🏥", color: "#e11d48", photo: "medical_center.jpeg", desc: "Comprehensive campus health centre providing 24/7 medical treatment and registration." },
+    13: { id: 13, x: 825, y: 510, name: "Medical Centre", fullName: "University Medical Centre", category: "Health Facility", icon: "🏥", color: "#e11d48", photo: "medical_center.jpeg", desc: "Comprehensive campus health centre providing 24/7 medical treatment and registration." },
 
     // 3. Student Living & Hostels (West / Left Corridor, leading up from 2nd Gate)
     7:  { id: 7,  x: 150, y: 370, name: "Bello Hall", fullName: "Bello Hall (Hostel)", category: "Student Hostel", icon: "🏠", color: "#d97706", photo: "bello_hostel.jpeg", desc: "Historic male student residence hall situated in the western residential quadrangle." },
@@ -340,29 +340,32 @@ const CAMPUS_NODES = {
 
     // 4. Perimeter Campus Gates
     15: { id: 15, x: 780, y: 730, name: "UNN 1st Gate", fullName: "UNN 1st Gate (Main Gate)", category: "Main Entrance", icon: "🚪", color: "#047857", photo: "main_gate.jpeg", desc: "The grand ceremonial main entrance gate to the University of Nigeria from Nsukka town." },
-    16: { id: 16, x: 180, y: 730, name: "UNN 2nd Gate", fullName: "UNN 2nd Gate (Abuja / Franco Gate)", category: "Secondary Gate", icon: "🚪", color: "#0284c7", photo: "abuja_gate.jpeg", desc: "Secondary campus gate near Franco refectory and hostels connecting commuters from Green House area." },
-    17: { id: 17, x: 120, y: 90,  name: "Odenigwe Gate", fullName: "Odenigwe Campus Gate", category: "Perimeter Gate", icon: "🚪", color: "#7c3aed", photo: "odenigwe_gate.jpeg", desc: "Northern campus gate serving as primary transit corridor for Odenigwe lodge residents." },
+    16: { id: 16, x: 150, y: 730, name: "UNN 2nd Gate", fullName: "UNN 2nd Gate (Abuja / Franco Gate)", category: "Secondary Gate", icon: "🚪", color: "#0284c7", photo: "abuja_gate.jpeg", desc: "Secondary campus gate near Franco refectory and hostels connecting commuters from Green House area." },
+    17: { id: 17, x: 150, y: 140,  name: "Odenigwe Gate", fullName: "Odenigwe Campus Gate", category: "Perimeter Gate", icon: "🚪", color: "#7c3aed", photo: "odenigwe_gate.jpeg", desc: "Northern campus gate serving as primary transit corridor for Odenigwe lodge residents." },
     9:  { id: 9,  x: 920, y: 420, name: "Odim Gate", fullName: "Odim Campus Gate", category: "Perimeter Gate", icon: "🚪", color: "#7c3aed", photo: "odim_gate.jpeg", desc: "Eastern campus gate connecting UNN to Odim off-campus student residential lodges." }
 };
 
 const CAMPUS_EDGES = [
-    [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 18], [1, 21], [1, 23], [1, 26],
-    [2, 3], [2, 5], [2, 7], [2, 8], [2, 12], [2, 14], [2, 18], [2, 20], [2, 21], [2, 22],
-    [3, 7], [3, 8], [3, 12], [3, 13], [3, 18],
-    [4, 6], [4, 9], [4, 10], [4, 11], [4, 22], [4, 25],
-    [5, 10], [5, 21], [5, 22], [5, 24],
-    [6, 9], [6, 10], [6, 11], [6, 22],
-    [7, 8], [7, 20],
-    [8, 12], [8, 17], [8, 20],
-    [9, 22],
-    [10, 22],
-    [11, 27],
-    [12, 14],
-    [13, 15], [13, 17],
-    [14, 15], [14, 17],
-    [16, 22],
-    [18, 19],
-    [21, 22]
+    // 1. Perimeter Gates to Campus Arteries
+    [15, 2], [15, 12], [15, 13], [15, 14],
+    [16, 19], [16, 14],
+    [17, 7], [17, 5], [17, 6],
+    [9, 11], [9, 13], [9, 4],
+
+    // 2. Student Living Corridor (Western axis)
+    [19, 18], [18, 20], [20, 7], [7, 3], [18, 3], [18, 1],
+
+    // 3. Central Administration & Heritage Avenue
+    [14, 21], [21, 22], [22, 12], [12, 13],
+    [14, 3], [3, 8], [8, 2], [2, 12], [8, 22], [2, 13],
+
+    // 4. Link between Central Admin & Physical Sciences
+    [3, 1], [8, 1], [2, 1], [2, 4], [22, 4],
+
+    // 5. Faculty of Physical Sciences Quadrangle
+    [1, 6], [1, 4], [1, 24], [1, 10], [1, 23], [1, 26],
+    [6, 5], [5, 24], [24, 10], [10, 4],
+    [4, 25], [25, 11], [26, 27], [27, 11], [23, 26], [5, 10]
 ];
 
 let mapInitialized = false;
