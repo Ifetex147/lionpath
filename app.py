@@ -470,6 +470,8 @@ def handle_message(message, session_id):
     clean_message = re.sub(r"\s+", " ", clean_message)
     if not clean_message:
         clean_message = message.lower().strip()
+    clean_message = re.sub(r"doi", "do i", clean_message)
+    clean_message = re.sub(r"dowe", "do we", clean_message)
 
     # Physics theory vs practical disambiguation
     if ctx.get("pending") == "awaiting_physics_type":
@@ -671,7 +673,7 @@ def handle_message(message, session_id):
             r"orientation|matriculation|matric|freshers?|event|events|seminars?|symposium|"
             r"cgpa|grade|grading|gpa|fees?|charges?|remita|rrr|receipt|"
             r"card|cards|id\s+card|library\s+card|"
-            r"timetable|schedule|classes|lectures?|"
+            r"timetables?|schedules?|class(?:es)?|lectures?|today|tomorrow|"
             r"cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt|\d{3}|"
             r"clearance|register|registration|admission|acceptance|"
             r"hostel|hostels|bedspace|accommodation|room|porter|"
@@ -794,9 +796,29 @@ def handle_message(message, session_id):
         }
 
     # Lecture timetable queries
-    if ((re.search(r"\b(timetable|schedule|classes|lectures?|what time is|when is|when do we have)\b", clean_message) and not re.search(r"\b(theatre|fpslt)\b", clean_message)) or re.search(r"\b(monday|tuesday|wednesday|thursday|friday|saturday)\b", clean_message) or re.search(r"\b(cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt)\s*(\d{3})\b", clean_message)):
+    timetable_signal = (
+        r"\b("
+        r"timetables?|schedules?|class(?:es)?|lectures?|"
+        r"what\s+time\s+is|when\s+is|when\s+do\s+we\s+have|"
+        r"(?:what|which|any)\s+class|"
+        r"(?:what|which)\s+lecture|"
+        r"classes?\s+today|"
+        r"class(?:es)?\s+for\s+today|"
+        r"today'?s?\s+classes?"
+        r")\b"
+    )
+    if ((re.search(timetable_signal, clean_message) and not re.search(r"\b(theatre|fpslt)\b", clean_message)) or re.search(r"\b(monday|tuesday|wednesday|thursday|friday|saturday)\b", clean_message) or re.search(r"\b(cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt)\s*(\d{3})\b", clean_message)):
         # Personal timetable inquiries
-        personal_tt_match = re.search(r"\b(what classes? do (i|we) have|which classes? do (i|we) have|what are my classes|what lectures? do (i|we) have|my classes|my lectures|my timetable|my schedule|show (me )?my classes|what class(es)? do i have)\b", clean_message)
+        personal_tt_pattern = (
+            r"\b("
+            r"(?:what|which|show\s+me|show|any|do\s+(?:i|we)\s+have|are\s+there)\s+(?:any\s+)?(?:my\s+)?(?:class(?:es)?|lectures?|schedules?|timetables?)|"
+            r"(?:what|which)\s+do\s+(?:i|we)\s+have|"
+            r"my\s+(?:class(?:es)?|lectures?|schedules?|timetables?)|"
+            r"(?:class(?:es)?|lectures?|schedules?|timetables?)\s+(?:for\s+)?(?:today|tomorrow|monday|tuesday|wednesday|thursday|friday)|"
+            r"(?:class(?:es)?|lectures?)\s+do\s+(?:i|we)\s+have"
+            r")\b"
+        )
+        personal_tt_match = re.search(personal_tt_pattern, clean_message)
         if personal_tt_match:
             # Extract day if mentioned
             req_day = None
@@ -804,8 +826,11 @@ def handle_message(message, session_id):
                 if re.search(rf"\b{d.lower()}\b", clean_message):
                     req_day = d
                     break
-            if "today" in clean_message:
+            if "today" in clean_message or not req_day:
                 req_day = datetime.now().strftime("%A")
+            elif "tomorrow" in clean_message:
+                from datetime import timedelta
+                req_day = (datetime.now() + timedelta(days=1)).strftime("%A")
 
             # Check if department was also mentioned in this exact message
             dept_in_msg = resolve_department(clean_message)
@@ -820,8 +845,9 @@ def handle_message(message, session_id):
             # Ask user for department with interactive pill buttons
             ctx["pending"] = "awaiting_user_department"
             ctx["pending_timetable_day"] = req_day
+            today_label = f" for **{req_day}**" if req_day else ""
             return {
-                "text": "Which department in the Faculty of Physical Sciences are you in? Please select your department to view your official 100-Level lecture schedule:",
+                "text": f"📅 Today is **{req_day}**.\n\nWhich department in the Faculty of Physical Sciences are you in? Please select your department to view your official 100-Level lecture schedule{today_label}:",
                 "options": [
                     "Computer Science",
                     "Geology",
