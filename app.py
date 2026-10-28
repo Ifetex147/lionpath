@@ -191,19 +191,32 @@ def handle_navigate(session_id, locations, clean_message):
             "options": ["Faculty Science Canteen", "Franco Refectory"]
         }
 
-    # Contextual memory
-    if len(locations) == 0 and re.search(r"\b(there|it|the place|that place|this place)\b", clean_message):
-        if ctx.get("destination"):
-            target_dest = ctx["destination"]
+    # Contextual memory (e.g. "how do i get there", "how do i get to the class", "directions to class")
+    is_contextual_ref = (
+        len(locations) == 0 and 
+        bool(re.search(r"\b(there|it|the place|that place|this place|the class|to the class|to class|the lecture|to the lecture|my class|the venue)\b", clean_message))
+    )
+    if is_contextual_ref:
+        target_dest = ctx.get("destination") or (resolve_target_venue(ctx.get("last_location")) if ctx.get("last_location") else None)
+        if target_dest:
+            ctx["destination"] = target_dest
             ctx["pending"] = "awaiting_source"
+            origin_opts = [
+                opt for opt in [
+                    "Carver Building",
+                    "UNN 1st Gate (Main Gate)",
+                    "UNN 2nd Gate (Abuja / Franco Gate)",
+                    "Bello Hall (Hostel)",
+                    "New Computer Science Building (NCSB)",
+                    "Student Affairs Building"
+                ] if opt != target_dest.formal_name
+            ][:5]
             return {
                 "text": f"Where are you starting from, on your way to **{target_dest.formal_name}**?",
-                "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
+                "options": origin_opts
             }
-        elif ctx.get("last_location"):
-            locations.append(ctx["last_location"])
         else:
-            return {"text": "I'm not exactly sure which place you mean. Could you name the specific building?"}
+            return {"text": "I'm not exactly sure which place or class you mean. Could you name the specific building or course code?"}
 
     if len(locations) >= 2:
         source = resolve_target_venue(locations[0])
@@ -273,13 +286,26 @@ def handle_navigate(session_id, locations, clean_message):
 
         destination = resolve_target_venue(cleaned_dest) if cleaned_dest else None
         if not destination:
-            destination = resolve_target_venue(clean_message)
+            if re.match(r"^(the\s+)?(class|lecture|venue|room|hall|place|spot)$", cleaned_dest) or cleaned_dest in ["there", "it"]:
+                destination = ctx.get("destination") or (resolve_target_venue(ctx.get("last_location")) if ctx.get("last_location") else None)
+            else:
+                destination = resolve_target_venue(clean_message)
         if destination:
             ctx["pending"] = "awaiting_source"
             ctx["destination"] = destination
+            origin_opts = [
+                opt for opt in [
+                    "Carver Building",
+                    "UNN 1st Gate (Main Gate)",
+                    "UNN 2nd Gate (Abuja / Franco Gate)",
+                    "Bello Hall (Hostel)",
+                    "New Computer Science Building (NCSB)",
+                    "Student Affairs Building"
+                ] if opt != destination.formal_name
+            ][:5]
             return {
                 "text": f"Where are you starting from, on your way to **{destination.formal_name}**?",
-                "options": ["Carver Building", "UNN 1st Gate (Main Gate)", "UNN 2nd Gate (Abuja / Franco Gate)", "Bello Hall (Hostel)", "New Computer Science Building (NCSB)"]
+                "options": origin_opts
             }
 
     return {"text": "Which place on campus do you want directions to? (e.g., *'Directions to SLT'* or *'From CS to Library'*)"}
@@ -495,11 +521,15 @@ def handle_message(message, session_id):
         phy_res = get_physics_timetable(clean_message)
         if phy_res and phy_res != "DISAMBIGUATE_PHYSICS":
             ctx["pending"] = None
-            venue_match = re.search(r"\*(.*?)\*|\((.*?)\)", phy_res)
+            venue_match = re.search(r"at \*([^*]+)\*", phy_res)
             if venue_match:
-                v = venue_match.group(1) or venue_match.group(2)
-                if v:
-                    ctx["last_location"] = v.strip()
+                v = venue_match.group(1).strip()
+                node = resolve_target_venue(v)
+                if node:
+                    ctx["destination"] = node
+                    ctx["last_location"] = node.formal_name
+                else:
+                    ctx["last_location"] = v
             return {"text": phy_res}
         elif re.search(r"\b(what|how|who|when|where|why|tell|hi|hello|cancel|nevermind)\b", clean_message):
             ctx["pending"] = None
@@ -891,11 +921,15 @@ def handle_message(message, session_id):
                 "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 121)**?",
                 "options": ["PHY 115 Theory", "PHY 121 Practical", "Both Physics Classes"]
             }
-        venue_match = re.search(r"\*(.*?)\*|\((.*?)\)", reply_text)
+        venue_match = re.search(r"at \*([^*]+)\*", reply_text)
         if venue_match:
-            v = venue_match.group(1) or venue_match.group(2)
-            if v:
-                ctx["last_location"] = v.strip()
+            v = venue_match.group(1).strip()
+            node = resolve_target_venue(v)
+            if node:
+                ctx["destination"] = node
+                ctx["last_location"] = node.formal_name
+            else:
+                ctx["last_location"] = v
         return {"text": reply_text}
 
     # Check if query targets a specific known Campus Event (e.g. "freshers orientation", "matriculation")
@@ -991,11 +1025,15 @@ def handle_message(message, session_id):
                 "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 121)**?",
                 "options": ["PHY 115 Theory", "PHY 121 Practical", "Both Physics Classes"]
             }
-        venue_match = re.search(r"\*(.*?)\*|\((.*?)\)", reply_text)
+        venue_match = re.search(r"at \*([^*]+)\*", reply_text)
         if venue_match:
-            v = venue_match.group(1) or venue_match.group(2)
-            if v:
-                ctx["last_location"] = v.strip()
+            v = venue_match.group(1).strip()
+            node = resolve_target_venue(v)
+            if node:
+                ctx["destination"] = node
+                ctx["last_location"] = node.formal_name
+            else:
+                ctx["last_location"] = v
         return {"text": reply_text}
 
     else:

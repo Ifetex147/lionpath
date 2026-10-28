@@ -93,6 +93,10 @@ def resolve_location(text):
     if re.search(r"\b(how to|how do|how can|what do i need|requirements?|documents?|register|registration|id card|library card|fee|fees|cost|procedure|process)\b", query_text):
         return None
 
+    # Generic contextual references (e.g. "the class", "class", "the lecture", "venue") should NOT match physical buildings
+    if re.match(r"^(the\s+)?(class|lecture|venue|room|hall|place|building|spot)$", query_text) or re.match(r"^(there|it|that place|this place)$", query_text):
+        return None
+
     clean = re.sub(r"\b(to|the|at|from|towards|building|block|department|hall|centre|center)\b", "", query_text).strip()
     clean = re.sub(r"\s+", " ", clean)
 

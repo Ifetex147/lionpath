@@ -140,6 +140,13 @@ class TestLionPathCoreWorkflows(unittest.TestCase):
         self.assertIn("not been scheduled", reply_unscheduled)
         self.assertIn("COS 101", reply_unscheduled)
 
+        # Contextual course navigation flow (e.g. "when is COS 191" -> "how do i get to the class")
+        self.client.post("/chat", json={"message": "when is COS 191", "session_id": "tt-context-nav"})
+        res_nav = self.client.post("/chat", json={"message": "how do i get to the class", "session_id": "tt-context-nav"})
+        reply_nav = res_nav.get_json().get("reply", "")
+        self.assertIn("New Computer Science Building", reply_nav)
+        self.assertNotIn("General Studies Building", reply_nav)
+
     def test_gate_discrimination_and_second_gate(self):
         """Category 9: Precise Gate Resolution and Ordinal Discrimination (1st Gate vs 2nd Gate)"""
         from resolver import resolve_location
