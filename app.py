@@ -535,8 +535,8 @@ def handle_message(message, session_id):
             ctx["pending"] = None
         else:
             return {
-                "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 121)**? (You can say *'theory'*, *'practical'*, or *'both'*).",
-                "options": ["PHY 115 Theory", "PHY 121 Practical", "Both Physics Classes"]
+                "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 191)**? (You can say *'theory'*, *'practical'*, or *'both'*).",
+                "options": ["PHY 115 Theory", "PHY 191 Practical", "Both Physics Classes"]
             }
 
     # Department selection for lecture schedules
@@ -841,7 +841,12 @@ def handle_message(message, session_id):
         return handle_navigate(session_id, locations, clean_message)
 
     # Standalone department timetable queries
-    dept_standalone = resolve_department(clean_message)
+    has_course_code = bool(
+        re.search(r"\b(cos|csc|mth|mat|phy|sta|chm|gs|gsp|geo|glg|slt|glt)\s*(\d{3})\b", clean_message)
+        or re.search(r"\b\d{3}\b", clean_message)
+    )
+    is_disambig_physics = bool(re.search(r"\b(physics|phy)\b", clean_message) and re.search(r"\b(when\s+is|what\s+time\s+is|class|lecture)\b", clean_message))
+    dept_standalone = resolve_department(clean_message) if (not has_course_code and not is_disambig_physics) else None
     if dept_standalone:
         ctx["user_department"] = dept_standalone
         tt = get_department_timetable(dept_standalone)
@@ -918,8 +923,8 @@ def handle_message(message, session_id):
         if reply_text == "DISAMBIGUATE_PHYSICS":
             ctx["pending"] = "awaiting_physics_type"
             return {
-                "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 121)**?",
-                "options": ["PHY 115 Theory", "PHY 121 Practical", "Both Physics Classes"]
+                "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 191)**?",
+                "options": ["PHY 115 Theory", "PHY 191 Practical", "Both Physics Classes"]
             }
         venue_match = re.search(r"at \*([^*]+)\*", reply_text)
         if venue_match:
@@ -1022,8 +1027,8 @@ def handle_message(message, session_id):
         if reply_text == "DISAMBIGUATE_PHYSICS":
             ctx["pending"] = "awaiting_physics_type"
             return {
-                "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 121)**?",
-                "options": ["PHY 115 Theory", "PHY 121 Practical", "Both Physics Classes"]
+                "text": "Are you asking about **Physics Theory (PHY 115)** or **Physics Practical (PHY 191)**?",
+                "options": ["PHY 115 Theory", "PHY 191 Practical", "Both Physics Classes"]
             }
         venue_match = re.search(r"at \*([^*]+)\*", reply_text)
         if venue_match:
