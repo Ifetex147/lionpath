@@ -377,6 +377,8 @@ def seed_database():
              "Entering through the first gate (Main Gate), go straight. When you reach the junction, turn left and go straight. You'll meet another junction, keep straight, you'll see another junction again. Turn right and go straight. Look at the left side of the road, you'll see a green building with a car park in front of it. That is the General Studies building."),
 
             # 2nd Gate (Abuja/Franco Gate) ->
+            ("gate_2", "abj_bldg", 520,
+             "Entering through UNN 2nd Gate (Abuja / Franco Gate), follow the main campus road past Franco refectory and the student residential avenue toward the central academic area. Continue past the General Studies and Student Affairs axis toward the Faculty of Physical Sciences complex. Turn into the quadrangle; the prominent multi-storey brown building facing the New Computer Science Building (NCSB) is the Abuja Building (Prof. Ezeilo Building)."),
             ("gate_2", "carver", 320,
              "Entering through UNN 2nd Gate (Abuja / Franco Gate), walk straight along the main Franco access road past the student hostel area and Student Affairs towards the Faculty of Physical Sciences. Carver Building is directly ahead across the street."),
             ("gate_2", "ict", 905,
