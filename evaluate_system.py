@@ -1,7 +1,5 @@
 """
-LionPath - Comprehensive Academic Evaluation & Performance Benchmarking Suite
-Generates empirical metrics (Precision, Recall, F1, Confusion Matrix, Latency, Dijkstra Graph Benchmarks)
-for Chapter 4 / 5 of the Final Year Project dissertation.
+Evaluation and performance benchmarking script for LionPath NLP model and pathfinding.
 """
 
 import time
@@ -11,15 +9,10 @@ from collections import defaultdict
 import spacy
 from train_data import TRAINING_DATA
 
-# Load model
 nlp = spacy.load("lionpath_nlp")
 INTENTS = ["navigate", "orientation_help", "event_query", "timetable_query", "general_chat"]
 
-# -------------------------------------------------------------
-# 1. OUT-OF-SAMPLE TEST DATASET (Unseen test queries for generalization)
-# -------------------------------------------------------------
 TEST_DATA = [
-    # NAVIGATE
     ("can you direct me to the faculty library?", "navigate", [("faculty library", "LOCATION")]),
     ("how can I reach the physics block from here?", "navigate", [("physics block", "LOCATION")]),
     ("I need walking directions to CS department", "navigate", [("CS department", "LOCATION")]),
@@ -27,7 +20,6 @@ TEST_DATA = [
     ("guide me to the main campus gate", "navigate", [("main campus gate", "LOCATION")]),
     ("where is the student hostel situated?", "navigate", [("student hostel", "LOCATION")]),
     
-    # ORIENTATION_HELP
     ("how do freshmen pay their school charges?", "orientation_help", []),
     ("what documents are required for faculty clearance?", "orientation_help", []),
     ("explain the procedure for student ID collection", "orientation_help", []),
@@ -35,21 +27,18 @@ TEST_DATA = [
     ("how do I apply for hostel accommodation?", "orientation_help", []),
     ("where can I find information on matriculation fee?", "orientation_help", []),
 
-    # EVENT_QUERY
     ("are there any departmental seminars holding this week?", "event_query", []),
     ("what time does the orientation symposium start?", "event_query", []),
     ("tell me about upcoming faculty activities", "event_query", []),
     ("is there any program scheduled for tomorrow?", "event_query", []),
     ("when is the faculty dean welcome address?", "event_query", []),
 
-    # TIMETABLE_QUERY
     ("what time is COS 101 on Wednesday?", "timetable_query", [("COS 101", "COURSE")]),
     ("when is the schedule for MAT 111 lecture?", "timetable_query", [("MAT 111", "COURSE")]),
     ("show me STA 131 lecture venue and time", "timetable_query", [("STA 131", "COURSE")]),
     ("when do we have physics practical class?", "timetable_query", []),
     ("what lectures do I have on Friday morning?", "timetable_query", []),
 
-    # GENERAL_CHAT
     ("good afternoon LionPath", "general_chat", []),
     ("how are you doing today?", "general_chat", []),
     ("thank you very much for assisting me", "general_chat", []),
@@ -183,7 +172,7 @@ def evaluate_graph_algorithms():
                 t0 = time.perf_counter()
                 path = dijkstra(graph, src, dst)
                 t1 = time.perf_counter()
-                times.append((t1 - t0) * 1000.0)  # ms
+                times.append((t1 - t0) * 1000.0)
                 if path is not None:
                     routes_found += 1
 
@@ -208,7 +197,6 @@ def run_full_evaluation():
     ner_results = evaluate_ner()
     graph_results = evaluate_graph_algorithms()
 
-    # Latency statistics
     all_latencies = test_results["latencies"]
     mean_lat = statistics.mean(all_latencies)
     median_lat = statistics.median(all_latencies)
@@ -221,7 +209,6 @@ def run_full_evaluation():
     print(f"5. Average Inference Latency: {mean_lat:.2f} ms (P95: {p95_lat:.2f} ms)")
     print(f"6. Dijkstra Pathfinding Average Latency: {graph_results['mean_dijkstra_ms']:.4f} ms across {graph_results['total_pairs']} route pairs")
 
-    # Generate Markdown Report for Thesis
     md_content = f"""# Chapter 4 & 5: System Evaluation & Experimental Results
 ## LionPath Campus Assistant Performance Report
 
@@ -312,4 +299,3 @@ Inference latency was benchmarked across individual user queries to verify real-
 
 if __name__ == "__main__":
     run_full_evaluation()
-

@@ -138,7 +138,7 @@ class TestLionPathPriorityFeatures(unittest.TestCase):
         self.assertIn("clearance", clr_text)
         self.assertNotIn("medical centre", clr_text)
 
-        # Campus Landmark Disambiguation (Library ambiguity test as shown in user screenshot)
+        # Campus Landmark Disambiguation
         self.client.post("/chat", json={"message": "how do i get to physics department", "session_id": "test-session-lib-flow"})
         lib_q = self.client.post("/chat", json={"message": "library", "session_id": "test-session-lib-flow"})
         self.assertIn("Faculty of Physical Sciences Library", lib_q.get_json()["reply"])
@@ -160,7 +160,7 @@ class TestLionPathPriorityFeatures(unittest.TestCase):
         self.assertIn("General Studies Building (GS Building)", tt_reply)
         self.assertLessEqual(tt_reply.count("GSP 101"), 2)
 
-        # 2. Course Venue Navigation & Typo Handling (Resolving exact screenshot flop)
+        # 2. Course Venue Navigation & Typo Handling
         nav_flop = self.client.post("/chat", json={"message": "how goi go for the GSP 101 class?", "session_id": "test-course-nav-flow"})
         nav_data1 = nav_flop.get_json()
         self.assertIn("General Studies Building", nav_data1["reply"])

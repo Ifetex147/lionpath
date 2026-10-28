@@ -54,12 +54,12 @@ Dijkstra's algorithm was benchmarked on the relational campus navigation graph a
 | Graph Metric | Value |
 | :--- | :---: |
 | **Total Campus Nodes ($|V|$)** | 27 |
-| **Total Navigable Edges ($|E|$)** | 110 |
+| **Total Navigable Edges ($|E|$)** | 122 |
 | **Total Evaluated Node Pairs** | 702 |
 | **Routable Paths Found** | 702 (100.0%) |
-| **Mean Dijkstra Execution Time** | **0.1107 ms** |
-| **Median Execution Time** | **0.0929 ms** |
-| **Max Execution Time** | **2.3606 ms** |
+| **Mean Dijkstra Execution Time** | **0.1983 ms** |
+| **Median Execution Time** | **0.1129 ms** |
+| **Max Execution Time** | **12.0496 ms** |
 
 ### 4. End-to-End Response Latency
 Inference latency was benchmarked across individual user queries to verify real-time conversational responsiveness.
@@ -67,14 +67,14 @@ Inference latency was benchmarked across individual user queries to verify real-
 #### Table 4.6: NLP Response Latency Metrics
 | Metric | Measurement (Milliseconds) |
 | :--- | :---: |
-| **Mean Inference Time** | 8.79 ms |
-| **Median (P50) Latency** | 8.32 ms |
-| **95th Percentile (P95)** | 11.67 ms |
-| **Minimum Latency** | 7.15 ms |
-| **Maximum Latency** | 12.56 ms |
+| **Mean Inference Time** | 11.22 ms |
+| **Median (P50) Latency** | 11.35 ms |
+| **95th Percentile (P95)** | 14.19 ms |
+| **Minimum Latency** | 8.28 ms |
+| **Maximum Latency** | 15.89 ms |
 
 ### 5. Discussion & Key Findings for Defense
 1. **Generalization Capability**: The retrained model achieves 100% accuracy on unseen test queries across all 5 campus intent classes, demonstrating that the word embedding and convolutional feature extraction in spaCy learned distinctive linguistic representations.
-2. **Pathfinding Optimality**: With an average execution time of **0.1107 ms**, Dijkstra's algorithm on the binary min-heap operates effectively instantaneously, confirming theoretical complexity $\mathcal{O}((V + E) \log V)$.
-3. **Real-Time Readiness**: With an average end-to-end NLP inference latency of **8.79 ms**, the system delivers answers in well under human perceptual threshold (200 ms).
+2. **Pathfinding Optimality**: With an average execution time of **0.1983 ms**, Dijkstra's algorithm on the binary min-heap operates effectively instantaneously, confirming theoretical complexity $\mathcal{O}((V + E) \log V)$.
+3. **Real-Time Readiness**: With an average end-to-end NLP inference latency of **11.22 ms**, the system delivers answers in well under human perceptual threshold (200 ms).
 4. **Contextual Fallbacks**: When confidence scores fall below 60%, the system falls back gracefully to `general_chat` rather than outputting misleading directions.
