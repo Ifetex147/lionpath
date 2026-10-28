@@ -133,6 +133,13 @@ class TestLionPathCoreWorkflows(unittest.TestCase):
         res_mon = self.client.post("/chat", json={"message": "classes on Monday", "session_id": "tt-3"})
         self.assertIn("Monday", res_mon.get_json().get("reply", ""))
 
+        # Unscheduled course lookup (e.g. COS 199)
+        res_unscheduled = self.client.post("/chat", json={"message": "when is COS 199", "session_id": "tt-unscheduled"})
+        reply_unscheduled = res_unscheduled.get_json().get("reply", "")
+        self.assertIn("COS 199", reply_unscheduled)
+        self.assertIn("not been scheduled", reply_unscheduled)
+        self.assertIn("COS 101", reply_unscheduled)
+
     def test_gate_discrimination_and_second_gate(self):
         """Category 9: Precise Gate Resolution and Ordinal Discrimination (1st Gate vs 2nd Gate)"""
         from resolver import resolve_location

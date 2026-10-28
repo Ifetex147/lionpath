@@ -215,7 +215,7 @@ def get_timetable(query_or_code=""):
             if phy_res:
                 return phy_res
 
-    # Case A: User specified both a Subject and a Course Number (e.g. "mathematics 111", "physics 115", "computer science 101")
+    # Case A: User specified both a Subject and a Course Number (e.g. "mathematics 111", "physics 115", "computer science 101", "cos 199")
     if matched_subject and number:
         matching_lectures = []
         for code_prefix in matched_subject["codes"]:
@@ -231,6 +231,27 @@ def get_timetable(query_or_code=""):
             for lec in matching_lectures:
                 resp += format_lecture(lec) + "\n"
             return resp.strip()
+        else:
+            # Course number was requested but not found in this department
+            available_lectures = []
+            for code_prefix in matched_subject["codes"]:
+                lectures = Timetable.query.filter(
+                    Timetable.course_code.ilike(f"{code_prefix}%")
+                ).all()
+                available_lectures.extend(lectures)
+
+            available_lectures = deduplicate_lectures(available_lectures)
+            primary_prefix = matched_subject["codes"][0]
+            code_label = f"{primary_prefix} {number}"
+
+            if available_lectures:
+                resp = f"**{code_label}** has not been scheduled or added to the 100-level timetable yet.\n\n"
+                resp += f"📚 **Available {matched_subject['display_name']} Courses on the Timetable:**\n\n"
+                for lec in available_lectures:
+                    resp += format_lecture(lec) + "\n"
+                return resp.strip()
+            else:
+                return f"**{code_label}** has not been scheduled or added to the timetable yet."
 
     # Case B: User specified a Subject alone (e.g. "when is mathematics lecture?", "computer science classes")
     if matched_subject:
@@ -249,7 +270,7 @@ def get_timetable(query_or_code=""):
             return resp.strip()
 
     # Case C: Standard alphanumeric code (e.g. "COS 101", "MTH 111", "PHY 115", "GLG 111", "SLT 101")
-    code_match = re.search(r"([a-zA-Z]{2,4})\s*(\d{3})", text)
+    code_match = re.search(r"\b([a-zA-Z]{2,4})\s*(\d{3})\b", text)
     if code_match:
         prefix = code_match.group(1).upper()
         num = code_match.group(2)
@@ -266,6 +287,12 @@ def get_timetable(query_or_code=""):
             target_prefixes = ["SLT", "GLT"]
         elif prefix in ["GSP", "GS"]:
             target_prefixes = ["GSP", "GS"]
+        elif prefix in ["PHY"]:
+            target_prefixes = ["PHY"]
+        elif prefix in ["CHM", "ICH"]:
+            target_prefixes = ["CHM", "ICH"]
+        elif prefix in ["STA"]:
+            target_prefixes = ["STA"]
 
         lectures = []
         for p in target_prefixes:
@@ -281,6 +308,25 @@ def get_timetable(query_or_code=""):
             for lec in lectures:
                 resp += format_lecture(lec) + "\n"
             return resp.strip()
+        else:
+            any_for_prefix = []
+            for p in target_prefixes:
+                res = Timetable.query.filter(
+                    Timetable.course_code.ilike(f"{p}%")
+                ).all()
+                any_for_prefix.extend(res)
+            any_for_prefix = deduplicate_lectures(any_for_prefix)
+            if any_for_prefix:
+                resp = f"**{code_upper}** has not been scheduled or added to the 100-level timetable yet.\n\n"
+                resp += f"📚 **Available {prefix} Courses on the Timetable:**\n\n"
+                for lec in any_for_prefix:
+                    resp += format_lecture(lec) + "\n"
+                return resp.strip()
+            else:
+                return (
+                    f"**{code_upper}** has not been scheduled or added to the 100-level timetable yet.\n\n"
+                    "💡 *LionPath currently covers 100-level courses in the Faculty of Physical Sciences (Computer Science, Mathematics, Physics, Chemistry, Geology, Statistics, and SLT).*"
+                )
 
     # 4. Clean Fallback Overview (Avoiding robotic query echo like "I couldn't find a timetable for 'what classes do i have'")
     clean_search = re.sub(
