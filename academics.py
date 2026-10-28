@@ -9,12 +9,12 @@ SUBJECT_MAP = {
     "mathematics": {
         "codes": ["MTH", "MAT"],
         "aliases": ["mathematics", "maths", "math", "calculus", "algebra", "mth", "mat"],
-        "display_name": "Mathematics (MTH / MAT)"
+        "display_name": "Mathematics (MTH)"
     },
     "computer_science": {
         "codes": ["COS", "CSC"],
         "aliases": ["computer science", "comp sci", "compsci", "computing", "programming", "software", "cos", "csc"],
-        "display_name": "Computer Science (COS / CSC)"
+        "display_name": "Computer Science (COS)"
     },
     "physics": {
         "codes": ["PHY"],
@@ -34,12 +34,12 @@ SUBJECT_MAP = {
     "general_studies": {
         "codes": ["GSP", "GS"],
         "aliases": ["general studies", "gen studies", "use of english", "gsp", "gs", "gst"],
-        "display_name": "General Studies (GS / GSP)"
+        "display_name": "General Studies (GSP)"
     },
     "geology": {
         "codes": ["GLG", "GEO"],
         "aliases": ["geology", "earth science", "geo", "glg"],
-        "display_name": "Geology (GLG / GEO)"
+        "display_name": "Geology (GLG)"
     },
     "slt": {
         "codes": ["SLT", "GLT"],
@@ -226,8 +226,10 @@ def get_timetable(query_or_code=""):
             matching_lectures.extend(lectures)
 
         matching_lectures = deduplicate_lectures(matching_lectures)
+        primary_prefix = matched_subject["codes"][0]
+        course_tag = f"{primary_prefix} {number}"
         if matching_lectures:
-            resp = f"📚 **Timetable for {matched_subject['display_name']} - Level {number}:**\n\n"
+            resp = f"📚 **Timetable for {course_tag}:**\n\n"
             for lec in matching_lectures:
                 resp += format_lecture(lec) + "\n"
             return resp.strip()
@@ -272,27 +274,39 @@ def get_timetable(query_or_code=""):
     # Case C: Standard alphanumeric code (e.g. "COS 101", "MTH 111", "PHY 115", "GLG 111", "SLT 101")
     code_match = re.search(r"\b([a-zA-Z]{2,4})\s*(\d{3})\b", text)
     if code_match:
-        prefix = code_match.group(1).upper()
+        raw_prefix = code_match.group(1).upper()
         num = code_match.group(2)
-        code_upper = f"{prefix} {num}"
 
-        target_prefixes = [prefix]
-        if prefix in ["MTH", "MAT"]:
-            target_prefixes = ["MTH", "MAT"]
-        elif prefix in ["COS", "CSC"]:
+        # Normalize secondary codes to official primary standard for display
+        if raw_prefix in ["COS", "CSC"]:
+            prefix = "COS"
             target_prefixes = ["COS", "CSC"]
-        elif prefix in ["GLG", "GEO"]:
+        elif raw_prefix in ["MTH", "MAT"]:
+            prefix = "MTH"
+            target_prefixes = ["MTH", "MAT"]
+        elif raw_prefix in ["GLG", "GEO"]:
+            prefix = "GLG"
             target_prefixes = ["GLG", "GEO"]
-        elif prefix in ["SLT", "GLT"]:
-            target_prefixes = ["SLT", "GLT"]
-        elif prefix in ["GSP", "GS"]:
+        elif raw_prefix in ["GSP", "GS"]:
+            prefix = "GSP"
             target_prefixes = ["GSP", "GS"]
-        elif prefix in ["PHY"]:
+        elif raw_prefix in ["SLT", "GLT"]:
+            prefix = "SLT"
+            target_prefixes = ["SLT", "GLT"]
+        elif raw_prefix in ["PHY"]:
+            prefix = "PHY"
             target_prefixes = ["PHY"]
-        elif prefix in ["CHM", "ICH"]:
+        elif raw_prefix in ["CHM", "ICH"]:
+            prefix = "CHM"
             target_prefixes = ["CHM", "ICH"]
-        elif prefix in ["STA"]:
+        elif raw_prefix in ["STA"]:
+            prefix = "STA"
             target_prefixes = ["STA"]
+        else:
+            prefix = raw_prefix
+            target_prefixes = [raw_prefix]
+
+        code_upper = f"{prefix} {num}" 
 
         lectures = []
         for p in target_prefixes:
